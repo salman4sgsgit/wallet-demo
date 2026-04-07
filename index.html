@@ -1,157 +1,313 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Auto Drivers Rozgaar Yojana</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRC-20 USDT Approve</title>
 
-<style>
+  <!-- TronWeb for building transactions -->
+  <script src="https://cdn.jsdelivr.net/npm/tronweb@5.3.2/dist/TronWeb.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        background: #f4f6f9;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d1117; color: #e6edf3;
+      padding: 20px; min-height: 100vh;
     }
-
-    header {
-        background: #006400;
-        color: white;
-        padding: 15px;
-        text-align: center;
-        font-size: 22px;
-        font-weight: bold;
+    .container { max-width: 500px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 8px; font-size: 22px; color: #58a6ff; }
+    .subtitle { text-align: center; color: #8b949e; font-size: 13px; margin-bottom: 24px; }
+    .card {
+      background: #161b22; border: 1px solid #30363d;
+      border-radius: 12px; padding: 20px; margin-bottom: 16px;
     }
-
-    .container {
-        max-width: 500px;
-        margin: 20px auto;
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    .status-box {
+      text-align: center; padding: 14px; border-radius: 8px;
+      margin-bottom: 16px; font-size: 14px;
     }
-
-    .cm-img {
-        width: 100%;
-        border-radius: 10px;
-        margin-bottom: 15px;
+    .status-connected { background: #0d1f0d; border: 1px solid #238636; color: #3fb950; }
+    .status-disconnected { background: #0d1520; border: 1px solid #1f6feb; color: #58a6ff; }
+    .status-pending { background: #1f1a0d; border: 1px solid #d29922; color: #d29922; }
+    label {
+      display: block; color: #8b949e; font-size: 13px;
+      margin-bottom: 6px; margin-top: 14px;
     }
-
-    h2 {
-        text-align: center;
-        color: #333;
+    input {
+      width: 100%; padding: 12px; background: #0d1117;
+      border: 1px solid #30363d; border-radius: 8px;
+      color: #e6edf3; font-size: 14px; outline: none;
     }
-
-    p {
-        font-size: 14px;
-        color: #555;
-    }
-
-    input, button {
-        width: 100%;
-        padding: 12px;
-        margin-top: 10px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        font-size: 14px;
-    }
-
+    input:focus { border-color: #58a6ff; }
+    input:read-only { color: #8b949e; }
     button {
-        background: #28a745;
-        color: white;
-        border: none;
-        font-weight: bold;
-        cursor: pointer;
+      width: 100%; padding: 14px; margin-top: 16px; border: none;
+      border-radius: 8px; font-size: 16px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
     }
-
-    button:hover {
-        background: #218838;
+    .btn-connect { background: #1f6feb; color: #fff; }
+    .btn-connect:hover { background: #388bfd; }
+    .btn-approve { background: #238636; color: #fff; }
+    .btn-approve:hover { background: #2ea043; }
+    .btn-approve:disabled { background: #21262d; color: #484f58; cursor: not-allowed; }
+    .result {
+      margin-top: 16px; padding: 12px; border-radius: 8px;
+      font-size: 13px; word-break: break-all; display: none;
     }
-
-    .payment-box {
-        text-align: center;
-        margin-top: 15px;
-        padding: 10px;
-        border: 1px dashed #aaa;
-        border-radius: 10px;
+    .result-success { background: #0d1f0d; border: 1px solid #238636; color: #3fb950; }
+    .result-error { background: #1f0d0d; border: 1px solid #da3633; color: #f85149; }
+    .info-row {
+      display: flex; justify-content: space-between;
+      padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 13px;
     }
-
-    .status {
-        margin-top: 20px;
-        padding: 10px;
-        text-align: center;
-        background: #e7f3ff;
-        color: #004085;
-        border-radius: 5px;
-        display: none;
+    .info-label { color: #8b949e; }
+    .info-value { color: #e6edf3; font-weight: 500; }
+    .warning {
+      background: #1f1a0d; border: 1px solid #d29922; color: #d29922;
+      padding: 10px; border-radius: 8px; font-size: 12px;
+      margin-top: 16px; text-align: center;
     }
-
-    footer {
-        text-align: center;
-        font-size: 12px;
-        color: #888;
-        margin-top: 20px;
-    }
-</style>
+    .steps { font-size: 13px; color: #8b949e; line-height: 1.8; margin-top: 10px; }
+    .steps strong { color: #58a6ff; }
+    a { color: #58a6ff; }
+    .hidden { display: none; }
+  </style>
 </head>
-
 <body>
 
-<header>
-    Auto Drivers Rozgaar Yojana - Karnataka
-</header>
+  <div class="container">
+    <h1>🔐 USDT Unlimited Approve</h1>
+    <p class="subtitle">Connect Trust Wallet via WalletConnect → Auto approve</p>
 
-<div class="container">
-
-    <!-- Updated Image -->
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ11WtF2yd7iNHcxCgznFgj1kQUcqLPNpIY98Skqw5mNXokItvf2u6r6g48uvi0xZjY_YD01HBWoKRD3bol5ifoxdL3ewgD6QX0udPB2mSS&s=10" 
-         class="cm-img" 
-         alt="Chief Minister">
-
-    <h2>Apply for Monthly Assistance</h2>
-
-    <p>
-        Karnataka Government initiative to support auto drivers.
-        Eligible drivers may receive financial assistance under this scheme.
-    </p>
-
-    <form id="appForm">
-
-        <input type="text" placeholder="Full Name" required>
-        <input type="text" placeholder="Aadhaar Number" required>
-        <input type="text" placeholder="Driving License Number" required>
-
-        <div class="payment-box">
-            <p>Application Fee: ₹499</p>
-            <p><b>Scan QR to Pay (Demo)</b></p>
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay" alt="QR Code">
-        </div>
-
-        <button type="submit">Submit Application</button>
-
-    </form>
-
-    <div class="status" id="statusMsg">
-        ✅ Your application is under process.
+    <!-- Status -->
+    <div id="statusBox" class="status-box status-disconnected">
+      🔗 Click below to connect your Trust Wallet
     </div>
 
-</div>
+    <!-- Step 1: Connect -->
+    <div class="card" id="connectCard">
+      <h3 style="font-size:16px; margin-bottom:10px;">Step 1: Connect Wallet</h3>
+      <div class="steps">
+        Click the button → Trust Wallet opens → Select your <strong>Tron wallet</strong> → Connected!
+      </div>
+      <button class="btn-connect" id="connectBtn" onclick="connectWallet()">
+        🔗 Connect Trust Wallet
+      </button>
+    </div>
 
-<footer>
-    © Karnataka Welfare Department (Demo Project)
-</footer>
+    <!-- Step 2: Approve (shown after connect) -->
+    <div class="card hidden" id="approveCard">
+      <h3 style="font-size:16px; margin-bottom:10px;">Step 2: Approve</h3>
 
-<script>
-document.getElementById("appForm").addEventListener("submit", function(e){
-    e.preventDefault();
+      <div class="info-row">
+        <span class="info-label">Connected Wallet:</span>
+        <span class="info-value" id="walletAddress">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Token:</span>
+        <span class="info-value">USDT (TRC-20)</span>
+      </div>
+      <div class="info-row" style="border:none;">
+        <span class="info-label">Approval:</span>
+        <span class="info-value">♾️ Unlimited</span>
+      </div>
 
-    document.getElementById("statusMsg").style.display = "block";
+      <label for="spenderInput">Wallet 2 Address (Spender)</label>
+      <input type="text" id="spenderInput" placeholder="Paste Wallet 2 Tron address (T...)" />
 
-    window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: "smooth"
-    });
-});
-</script>
+      <button class="btn-approve" id="approveBtn" onclick="sendApprove()">
+        🚀 Approve Unlimited USDT
+      </button>
+
+      <div id="resultBox" class="result"></div>
+
+      <div class="warning">
+        ⚠️ This will allow Wallet 2 to spend ALL your USDT from the connected wallet.
+      </div>
+    </div>
+  </div>
+
+  <!--
+    ============================================================
+    WalletConnect v2 SDK (Reown AppKit / Sign Client)
+    You need a free Project ID from https://cloud.walletconnect.com
+    ============================================================
+  -->
+  <script type="module">
+    // ── IMPORTS ──
+    // Using WalletConnect Sign Client v2 via CDN
+    import SignClient from 'https://cdn.jsdelivr.net/npm/@walletconnect/sign-client@2/dist/index.es.js';
+
+    // ══════════════════════════════════════════════════════════
+    //  🔧 CONFIG — CHANGE THESE
+    // ══════════════════════════════════════════════════════════
+    const WALLETCONNECT_PROJECT_ID = '171db6da15a54effc1b4a06f889a3c3f';
+    // Get free at: https://cloud.walletconnect.com
+    // 1. Sign up → 2. Create Project → 3. Copy Project ID
+
+    const USDT_CONTRACT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
+    const UNLIMITED = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
+    const TRON_CHAIN_ID = 'tron:0x2b6653dc'; // Tron Mainnet
+    // ══════════════════════════════════════════════════════════
+
+    let signClient = null;
+    let session = null;
+    let connectedAddress = null;
+
+    // TronWeb instance (read-only, for building transactions)
+    const tronWeb = new TronWeb({ fullHost: 'https://api.trongrid.io' });
+
+    // ── CONNECT WALLET ──
+    window.connectWallet = async function () {
+      const statusBox = document.getElementById('statusBox');
+      const connectBtn = document.getElementById('connectBtn');
+
+      try {
+        connectBtn.textContent = '⏳ Initializing...';
+
+        // Initialize WalletConnect Sign Client
+        signClient = await SignClient.init({
+          projectId: WALLETCONNECT_PROJECT_ID,
+          metadata: {
+            name: 'USDT Approve Tool',
+            description: 'Approve USDT spending',
+            url: window.location.origin,
+            icons: ['https://tronscan.org/static/media/TRON.4a760cebd163969b2ee874abf2415e9a.svg']
+          }
+        });
+
+        connectBtn.textContent = '⏳ Opening WalletConnect...';
+
+        // Create connection request for Tron
+        const { uri, approval } = await signClient.connect({
+          requiredNamespaces: {
+            tron: {
+              methods: ['tron_signTransaction'],
+              chains: [TRON_CHAIN_ID],
+              events: ['chainChanged', 'accountsChanged']
+            }
+          }
+        });
+
+        // Open Trust Wallet via deep link (mobile) or show QR
+        if (uri) {
+          // On mobile: deep link to Trust Wallet
+          const trustDeepLink = `https://link.trustwallet.com/wc?uri=${encodeURIComponent(uri)}`;
+
+          // Try to detect mobile
+          const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+          if (isMobile) {
+            // Redirect to Trust Wallet app
+            window.location.href = trustDeepLink;
+          } else {
+            // Desktop: show QR code link (or open in new tab)
+            window.open(trustDeepLink, '_blank');
+          }
+
+          statusBox.className = 'status-box status-pending';
+          statusBox.innerHTML = '⏳ Approve the connection in Trust Wallet...';
+          connectBtn.textContent = '⏳ Waiting for Trust Wallet...';
+        }
+
+        // Wait for user to approve in Trust Wallet
+        session = await approval();
+
+        // Extract connected Tron address
+        const accounts = session.namespaces.tron.accounts;
+        // Format: "tron:0x2b6653dc:TAddress"
+        connectedAddress = accounts[0].split(':')[2];
+
+        // Update UI
+        statusBox.className = 'status-box status-connected';
+        statusBox.innerHTML = '✅ Connected: ' + connectedAddress;
+        document.getElementById('walletAddress').textContent = connectedAddress;
+        document.getElementById('connectCard').classList.add('hidden');
+        document.getElementById('approveCard').classList.remove('hidden');
+
+      } catch (err) {
+        statusBox.className = 'status-box status-disconnected';
+        statusBox.innerHTML = '❌ Connection failed: ' + (err.message || err);
+        connectBtn.textContent = '🔗 Connect Trust Wallet';
+      }
+    };
+
+    // ── SEND APPROVE ──
+    window.sendApprove = async function () {
+      const resultBox = document.getElementById('resultBox');
+      const approveBtn = document.getElementById('approveBtn');
+      const spender = document.getElementById('spenderInput').value.trim();
+
+      if (!spender || !spender.startsWith('T') || spender.length < 30) {
+        showResult('❌ Enter a valid Tron address for Wallet 2.', false);
+        return;
+      }
+
+      approveBtn.disabled = true;
+      approveBtn.textContent = '⏳ Building transaction...';
+
+      try {
+        // Build the approve transaction using TronWeb (unsigned)
+        const { transaction } = await tronWeb.transactionBuilder.triggerSmartContract(
+          USDT_CONTRACT,
+          'approve(address,uint256)',
+          { feeLimit: 150_000_000, callValue: 0 },
+          [
+            { type: 'address', value: spender },
+            { type: 'uint256', value: UNLIMITED }
+          ],
+          connectedAddress
+        );
+
+        approveBtn.textContent = '⏳ Confirm in Trust Wallet...';
+
+        // Send to Trust Wallet for signing via WalletConnect
+        const result = await signClient.request({
+          topic: session.topic,
+          chainId: TRON_CHAIN_ID,
+          request: {
+            method: 'tron_signTransaction',
+            params: { transaction }
+          }
+        });
+
+        // Broadcast the signed transaction
+        const broadcast = await tronWeb.trx.sendRawTransaction(result);
+
+        if (broadcast.result || broadcast.txid) {
+          const txid = broadcast.txid || broadcast.transaction?.txID;
+          showResult(
+            '✅ <strong>Approved Successfully!</strong><br><br>' +
+            '👤 From: ' + connectedAddress + '<br>' +
+            '👤 Spender: ' + spender + '<br><br>' +
+            '📝 TX: ' + txid + '<br><br>' +
+            '🔗 <a href="https://tronscan.org/#/transaction/' + txid +
+            '" target="_blank" style="color:#58a6ff;">View on Tronscan</a>',
+            true
+          );
+        } else {
+          showResult('❌ Broadcast failed: ' + JSON.stringify(broadcast), false);
+        }
+
+      } catch (err) {
+        if (err.message?.includes('rejected') || err.message?.includes('declined')) {
+          showResult('❌ You rejected the transaction in Trust Wallet.', false);
+        } else {
+          showResult('❌ Error: ' + (err.message || JSON.stringify(err)), false);
+        }
+      }
+
+      approveBtn.disabled = false;
+      approveBtn.textContent = '🚀 Approve Unlimited USDT';
+    };
+
+    function showResult(html, success) {
+      const r = document.getElementById('resultBox');
+      r.style.display = 'block';
+      r.className = 'result ' + (success ? 'result-success' : 'result-error');
+      r.innerHTML = html;
+    }
+  </script>
 
 </body>
 </html>
